@@ -393,6 +393,16 @@ Required environment values:
 - Payload secret
 - any media-serving configuration needed for public URLs
 
+GitHub Actions deployment workflow:
+
+- workflow file: `.github/workflows/deploy.yml`
+- trigger: push to `main` and manual dispatch
+- steps: install dependencies, verify DB access, run migrations, verify build, trigger Railway deploy hook
+- required GitHub secrets:
+  - `DATABASE_URL`
+  - `PAYLOAD_SECRET`
+  - `RAILWAY_DEPLOY_HOOK_URL`
+
 ## 19. Repo Tasks
 
 ### Foundation

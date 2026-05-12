@@ -63,6 +63,16 @@ Rotating logs:
 - Commit payload config changes and migration files together.
 - Run `npm run migrate` before deploy/build in CI.
 
+## GitHub Actions Deployment
+
+- Workflow: `.github/workflows/deploy.yml`
+- Trigger: push to `main` and manual `workflow_dispatch`
+- Job order: `npm ci`, `npm run db:check`, `npm run migrate`, `npm run build`, then trigger Railway via deploy hook
+- Required GitHub repository secrets:
+  - `DATABASE_URL`
+  - `PAYLOAD_SECRET`
+  - `RAILWAY_DEPLOY_HOOK_URL`
+
 ## Public REST Endpoints
 
 - `GET /api/posts` (returns published posts to public users)
