@@ -393,6 +393,13 @@ Required environment values:
 - Payload secret
 - any media-serving configuration needed for public URLs
 
+Optional publish automation value:
+
+- `UI_DEPLOY_WEBHOOK_URL`
+  - deployment-provider-agnostic webhook endpoint used to trigger the UI rebuild after published content changes
+  - examples include a Vercel Deploy Hook, Netlify Build Hook, GitHub Actions relay endpoint, or a custom deployment webhook
+  - backward-compatible alias may still be accepted during transition: `UI_DEPLOY_HOOK_URL`
+
 GitHub Actions deployment workflow:
 
 - workflow file: `.github/workflows/deploy.yml`

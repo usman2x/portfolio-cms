@@ -6,6 +6,7 @@ import {
   enforcePublishRequirements,
   markPublishedMediaAsPublic,
   setPostDefaults,
+  triggerPublishedPostUiDeploy,
 } from '@/hooks/posts'
 
 export const Posts: CollectionConfig = {
@@ -24,7 +25,7 @@ export const Posts: CollectionConfig = {
     drafts: true,
   },
   hooks: {
-    afterChange: [markPublishedMediaAsPublic],
+    afterChange: [markPublishedMediaAsPublic, triggerPublishedPostUiDeploy],
     beforeChange: [enforcePublishRequirements],
     beforeValidate: [setPostDefaults],
   },

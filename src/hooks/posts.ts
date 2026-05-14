@@ -19,6 +19,82 @@ type PostLike = {
   title?: string
 }
 
+const getUiDeployWebhookUrl = (): string => {
+  const value =
+    process.env.UI_DEPLOY_WEBHOOK_URL ||
+    process.env.UI_DEPLOY_HOOK_URL ||
+    process.env.PORTFOLIO_UI_DEPLOY_HOOK_URL ||
+    ''
+
+  return value.trim()
+}
+
+const isPublishedPost = (post: PostLike | null | undefined): boolean => post?.status === 'published'
+
+const shouldTriggerUiDeploy = (
+  current: PostLike | null | undefined,
+  previous: PostLike | null | undefined,
+): boolean => isPublishedPost(current) || isPublishedPost(previous)
+
+const triggerUiDeployWebhook = async ({
+  current,
+  operation,
+  previous,
+}: {
+  current: PostLike | null | undefined
+  operation: 'create' | 'update'
+  previous: PostLike | null | undefined
+}): Promise<void> => {
+  const webhookUrl = getUiDeployWebhookUrl()
+  if (!webhookUrl || !shouldTriggerUiDeploy(current, previous)) {
+    return
+  }
+
+  const payload = {
+    event: 'post.changed',
+    operation,
+    current: {
+      id: current?.id ?? null,
+      slug: current?.slug ?? null,
+      status: current?.status ?? null,
+      title: current?.title ?? null,
+    },
+    previous: {
+      id: previous?.id ?? null,
+      slug: previous?.slug ?? null,
+      status: previous?.status ?? null,
+      title: previous?.title ?? null,
+    },
+  }
+
+  try {
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-cms-event': 'post.changed',
+      },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(10000),
+    })
+
+    if (!response.ok) {
+      throw new Error(
+        `UI deploy webhook responded with ${response.status} ${response.statusText}`,
+      )
+    }
+
+    console.info(
+      `[cms] Triggered UI deploy webhook for ${operation} on post "${current?.slug ?? current?.id ?? 'unknown'}".`,
+    )
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    console.error(
+      `[cms] Failed to trigger UI deploy webhook for post "${current?.slug ?? current?.id ?? 'unknown'}": ${message}`,
+    )
+  }
+}
+
 const relationToID = (value: string | { id?: string } | undefined): string | undefined => {
   if (!value) return undefined
   if (typeof value === 'string') return value
@@ -119,6 +195,20 @@ export const markPublishedMediaAsPublic: CollectionAfterChangeHook = async ({
       overrideAccess: true,
     })
   }
+
+  return doc
+}
+
+export const triggerPublishedPostUiDeploy: CollectionAfterChangeHook = async ({
+  doc,
+  operation,
+  previousDoc,
+}) => {
+  await triggerUiDeployWebhook({
+    current: doc as PostLike,
+    operation,
+    previous: (previousDoc ?? null) as PostLike | null,
+  })
 
   return doc
 }

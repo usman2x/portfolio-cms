@@ -46,6 +46,33 @@ Payload CMS repository for managing blog content used by the portfolio site.
 Connection check:
 - `npm run db:check`
 
+Environment variables:
+
+- `DATABASE_URL`
+  - PostgreSQL connection string used by Payload.
+- `DB_SCHEMA`
+  - PostgreSQL schema name for CMS tables.
+- `PAYLOAD_SECRET`
+  - Payload app secret for auth and internal security. Use a long random value.
+- `NEXT_PUBLIC_SERVER_URL`
+  - Public base URL of the CMS app.
+- `UI_DEPLOY_WEBHOOK_URL`
+  - Optional UI deployment webhook triggered after published post changes.
+- `LOG_DIR`
+  - Directory where rotated logs are written.
+- `LOG_FILENAME`
+  - Filename pattern for rotated logs.
+- `LOG_DATE_PATTERN`
+  - Date format used in rotated log filenames.
+- `LOG_MAX_SIZE`
+  - Maximum size of one log file before rotation.
+- `LOG_MAX_FILES`
+  - Retention window for rotated logs.
+- `LOG_ZIPPED_ARCHIVE`
+  - Whether old rotated logs are compressed.
+- `LOG_SYMLINK_NAME`
+  - Stable symlink name pointing to the current log file.
+
 Rotating logs:
 - `npm run dev` now runs with file rotation by default
 - `npm run start` now runs with file rotation by default
@@ -63,15 +90,76 @@ Rotating logs:
 - Commit payload config changes and migration files together.
 - Run `npm run migrate` before deploy/build in CI.
 
-## GitHub Actions Deployment
+## Deployment
+
+### Production Target
+
+- Railway app deployment for the Payload application
+- PostgreSQL database for content and media blobs
+
+### Local Verification
+
+```bash
+npm run db:check
+npm run migrate
+npm run build
+```
+
+Use `npm run dev` for local development after the checks pass.
+
+### Automatic Deployment From `main`
 
 - Workflow: `.github/workflows/deploy.yml`
 - Trigger: push to `main` and manual `workflow_dispatch`
-- Job order: `npm ci`, `npm run db:check`, `npm run migrate`, `npm run build`, then trigger Railway via deploy hook
-- Required GitHub repository secrets:
-  - `DATABASE_URL`
-  - `PAYLOAD_SECRET`
-  - `RAILWAY_DEPLOY_HOOK_URL`
+- Job order:
+  - `npm ci`
+  - `npm run db:check`
+  - `npm run migrate`
+  - `npm run build`
+  - trigger Railway via deploy hook
+
+Required GitHub repository secrets:
+
+- `DATABASE_URL`
+- `PAYLOAD_SECRET`
+- `RAILWAY_DEPLOY_HOOK_URL`
+
+Optional GitHub repository secret:
+
+- `UI_DEPLOY_WEBHOOK_URL`
+  - used only for a deployment warning in CI
+  - the actual CMS publish automation depends on this value being present in the running CMS environment
+
+Optional runtime environment values:
+
+- `UI_DEPLOY_WEBHOOK_URL`
+  - set this to a deployment-provider webhook or relay endpoint for the UI repo
+  - examples: Vercel Deploy Hook, Netlify Build Hook, GitHub Actions dispatch relay, or a custom deployment webhook endpoint
+  - the CMS will `POST` to it when a published post is created, updated, unpublished, or otherwise changes public visibility
+  - backward-compatible alias still accepted in code: `UI_DEPLOY_HOOK_URL`
+
+Webhook distinction:
+
+- `RAILWAY_DEPLOY_HOOK_URL`
+  - used by GitHub Actions to deploy the CMS application on Railway after CI succeeds
+- `UI_DEPLOY_WEBHOOK_URL`
+  - used by the running CMS app to trigger a frontend rebuild after published content changes
+
+### Deployment Rules
+
+- every schema change must ship with a migration
+- migrations must run before the new app version is treated as live
+- commit schema/config changes and migration files together
+- keep the UI repo `PAYLOAD_API_URL` pointed at the active CMS base URL
+
+### Publish Behavior
+
+- publishing a post makes it available on the CMS public API immediately
+- the Gatsby UI reflects that content on its next successful rebuild or deployment
+- the chosen frontend model is static generation plus rebuild on publish
+- if `UI_DEPLOY_WEBHOOK_URL` is configured, the CMS automatically triggers the UI deployment webhook for published-post changes
+- the current UI deployment flow performs a normal site deployment, which means a full Gatsby rebuild rather than an affected-page-only rebuild
+- runtime blog rendering through SSR or a hybrid framework is a future option, not the current delivery model
 
 ## Public REST Endpoints
 
