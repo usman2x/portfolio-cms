@@ -34,6 +34,10 @@ export const Media: CollectionConfig = {
     disableLocalStorage: true,
     imageSizes: [
       {
+        name: 'thumbnail',
+        width: 480,
+      },
+      {
         name: 'card',
         width: 1200,
       },

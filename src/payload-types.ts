@@ -71,6 +71,9 @@ export interface Config {
     tags: Tag;
     media: Media;
     posts: Post;
+    'work-experience': WorkExperience;
+    testimonials: Testimonial;
+    'quote-requests': QuoteRequest;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -82,6 +85,9 @@ export interface Config {
     tags: TagsSelect<false> | TagsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
+    'work-experience': WorkExperienceSelect<false> | WorkExperienceSelect<true>;
+    testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
+    'quote-requests': QuoteRequestsSelect<false> | QuoteRequestsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -91,8 +97,26 @@ export interface Config {
     defaultIDType: string;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'site-settings': SiteSetting;
+    'home-page': HomePage;
+    'about-page': AboutPage;
+    'testimonials-page': TestimonialsPage;
+    'quote-page': QuotePage;
+    'archive-settings': ArchiveSetting;
+    'project-template': ProjectTemplate;
+    'system-pages': SystemPage;
+  };
+  globalsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'home-page': HomePageSelect<false> | HomePageSelect<true>;
+    'about-page': AboutPageSelect<false> | AboutPageSelect<true>;
+    'testimonials-page': TestimonialsPageSelect<false> | TestimonialsPageSelect<true>;
+    'quote-page': QuotePageSelect<false> | QuotePageSelect<true>;
+    'archive-settings': ArchiveSettingsSelect<false> | ArchiveSettingsSelect<true>;
+    'project-template': ProjectTemplateSelect<false> | ProjectTemplateSelect<true>;
+    'system-pages': SystemPagesSelect<false> | SystemPagesSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -184,6 +208,14 @@ export interface Media {
   focalX?: number | null;
   focalY?: number | null;
   sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
     card?: {
       url?: string | null;
       width?: number | null;
@@ -241,9 +273,84 @@ export interface Post {
    */
   readingTimeMinutes?: number | null;
   featured?: boolean | null;
+  /**
+   * Optional role shown on project previews and case studies.
+   */
+  projectRole?: string | null;
+  /**
+   * Full project gallery. The first image is used as the project cover when no separate cover image is selected.
+   */
+  projectGallery?: (string | Media)[] | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "work-experience".
+ */
+export interface WorkExperience {
+  id: string;
+  company: string;
+  role: string;
+  period: string;
+  location?: string | null;
+  website?: string | null;
+  summary: string;
+  highlights?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  sortOrder: number;
+  status: 'draft' | 'published';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials".
+ */
+export interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  company?: string | null;
+  relationship: 'manager' | 'colleague' | 'client' | 'other';
+  /**
+   * Use the source wording exactly. Short excerpts work best on the site.
+   */
+  quote: string;
+  recommendationDate?: string | null;
+  sourceLabel?: string | null;
+  sourceUrl?: string | null;
+  featured?: boolean | null;
+  sortOrder?: number | null;
+  status: 'draft' | 'published';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quote-requests".
+ */
+export interface QuoteRequest {
+  id: string;
+  name: string;
+  email: string;
+  company?: string | null;
+  helpType: string;
+  workType: string;
+  timeline: string;
+  budget: string;
+  context: string;
+  preferredContact: string;
+  status: 'new' | 'contacted' | 'closed' | 'spam';
+  sourceUrl?: string | null;
+  userAgent?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -284,6 +391,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'posts';
         value: string | Post;
+      } | null)
+    | ({
+        relationTo: 'work-experience';
+        value: string | WorkExperience;
+      } | null)
+    | ({
+        relationTo: 'testimonials';
+        value: string | Testimonial;
+      } | null)
+    | ({
+        relationTo: 'quote-requests';
+        value: string | QuoteRequest;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -387,6 +506,16 @@ export interface MediaSelect<T extends boolean = true> {
   sizes?:
     | T
     | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
         card?:
           | T
           | {
@@ -430,9 +559,72 @@ export interface PostsSelect<T extends boolean = true> {
   noindex?: T;
   readingTimeMinutes?: T;
   featured?: T;
+  projectRole?: T;
+  projectGallery?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "work-experience_select".
+ */
+export interface WorkExperienceSelect<T extends boolean = true> {
+  company?: T;
+  role?: T;
+  period?: T;
+  location?: T;
+  website?: T;
+  summary?: T;
+  highlights?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  sortOrder?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials_select".
+ */
+export interface TestimonialsSelect<T extends boolean = true> {
+  name?: T;
+  role?: T;
+  company?: T;
+  relationship?: T;
+  quote?: T;
+  recommendationDate?: T;
+  sourceLabel?: T;
+  sourceUrl?: T;
+  featured?: T;
+  sortOrder?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quote-requests_select".
+ */
+export interface QuoteRequestsSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  company?: T;
+  helpType?: T;
+  workType?: T;
+  timeline?: T;
+  budget?: T;
+  context?: T;
+  preferredContact?: T;
+  status?: T;
+  sourceUrl?: T;
+  userAgent?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -473,6 +665,533 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: string;
+  name: string;
+  shortLabel: string;
+  professionalTitle: string;
+  defaultSeoTitle: string;
+  defaultSeoDescription: string;
+  portrait?: (string | null) | Media;
+  /**
+   * Fallback path, such as /images/usman.jpg.
+   */
+  portraitPath?: string | null;
+  portraitAlt: string;
+  resumeLink?: string | null;
+  email: string;
+  phone?: string | null;
+  meetingLink: string;
+  socialLinks?:
+    | {
+        name: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  navigation?:
+    | {
+        label: string;
+        url: string;
+        isPrimary?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  footerDescription: string;
+  bookCall: {
+    title: string;
+    description: string;
+    buttonLabel: string;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-page".
+ */
+export interface HomePage {
+  id: string;
+  seoTitle: string;
+  seoDescription: string;
+  eyebrow: string;
+  headline: string;
+  supportingText: string;
+  trustChips?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  primaryCtaLabel: string;
+  secondaryCtaLabel: string;
+  postHeroLine: string;
+  writingsTitle: string;
+  writingsArchiveLabel: string;
+  writingsLimit?: number | null;
+  projectsTitle: string;
+  projectsArchiveLabel: string;
+  featuredProjects?: (string | Post)[] | null;
+  testimonialsEyebrow: string;
+  testimonialsTitle: string;
+  testimonialsDescription: string;
+  testimonialsArchiveLabel?: string | null;
+  testimonialLimit?: number | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-page".
+ */
+export interface AboutPage {
+  id: string;
+  seoTitle: string;
+  seoDescription: string;
+  eyebrow: string;
+  title: string;
+  summary?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  video?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    description?: string | null;
+    url?: string | null;
+    transcript?: string | null;
+    transcriptLabel?: string | null;
+  };
+  experienceTitle: string;
+  strengths?:
+    | {
+        title: string;
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  strengthsTitle: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials-page".
+ */
+export interface TestimonialsPage {
+  id: string;
+  seoTitle: string;
+  seoDescription: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quote-page".
+ */
+export interface QuotePage {
+  id: string;
+  seoTitle: string;
+  seoDescription: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  process?:
+    | {
+        title: string;
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  responseNote: string;
+  privacyNote: string;
+  nextStepsTitle: string;
+  alternativesTitle: string;
+  callLabel: string;
+  emailLinkLabel: string;
+  formEyebrow: string;
+  formTitle: string;
+  requiredFieldsLabel: string;
+  scopeLegend: string;
+  selectPlaceholder: string;
+  helpTypeLabel: string;
+  workTypeLabel: string;
+  timelineLabel: string;
+  budgetLabel: string;
+  helpTypes: {
+    label: string;
+    value: string;
+    id?: string | null;
+  }[];
+  workTypes: {
+    label: string;
+    value: string;
+    id?: string | null;
+  }[];
+  timelines: {
+    label: string;
+    value: string;
+    id?: string | null;
+  }[];
+  budgets: {
+    label: string;
+    value: string;
+    id?: string | null;
+  }[];
+  contactMethods: {
+    label: string;
+    value: string;
+    id?: string | null;
+  }[];
+  contextLabel: string;
+  contextPlaceholder: string;
+  contextLegend: string;
+  contextHelp: string;
+  contactLegend: string;
+  nameLabel: string;
+  namePlaceholder: string;
+  emailLabel: string;
+  emailPlaceholder: string;
+  companyLabel: string;
+  companyPlaceholder: string;
+  preferredContactLabel: string;
+  submitLabel: string;
+  submittingLabel: string;
+  successMessage: string;
+  errorMessage: string;
+  successEyebrow: string;
+  successTitle: string;
+  sendAnotherLabel: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "archive-settings".
+ */
+export interface ArchiveSetting {
+  id: string;
+  writingsTitle: string;
+  writingsSeoDescription: string;
+  filterTitle: string;
+  filterDescription: string;
+  postsPerPage?: number | null;
+  writingCtaLabel: string;
+  readArticleLabel: string;
+  projectsTitle: string;
+  projectsSeoDescription: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "project-template".
+ */
+export interface ProjectTemplate {
+  id: string;
+  backLabel: string;
+  stackLabel: string;
+  linkLabel: string;
+  defaultLinkLabel: string;
+  linkDescription: string;
+  storyTitle: string;
+  previousLabel: string;
+  nextLabel: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "system-pages".
+ */
+export interface SystemPage {
+  id: string;
+  notFoundTitle: string;
+  notFoundMessage: string;
+  thankYouTitle: string;
+  thankYouMessage: string;
+  homeButtonLabel: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  name?: T;
+  shortLabel?: T;
+  professionalTitle?: T;
+  defaultSeoTitle?: T;
+  defaultSeoDescription?: T;
+  portrait?: T;
+  portraitPath?: T;
+  portraitAlt?: T;
+  resumeLink?: T;
+  email?: T;
+  phone?: T;
+  meetingLink?: T;
+  socialLinks?:
+    | T
+    | {
+        name?: T;
+        url?: T;
+        id?: T;
+      };
+  navigation?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        isPrimary?: T;
+        id?: T;
+      };
+  footerDescription?: T;
+  bookCall?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        buttonLabel?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-page_select".
+ */
+export interface HomePageSelect<T extends boolean = true> {
+  seoTitle?: T;
+  seoDescription?: T;
+  eyebrow?: T;
+  headline?: T;
+  supportingText?: T;
+  trustChips?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  primaryCtaLabel?: T;
+  secondaryCtaLabel?: T;
+  postHeroLine?: T;
+  writingsTitle?: T;
+  writingsArchiveLabel?: T;
+  writingsLimit?: T;
+  projectsTitle?: T;
+  projectsArchiveLabel?: T;
+  featuredProjects?: T;
+  testimonialsEyebrow?: T;
+  testimonialsTitle?: T;
+  testimonialsDescription?: T;
+  testimonialsArchiveLabel?: T;
+  testimonialLimit?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-page_select".
+ */
+export interface AboutPageSelect<T extends boolean = true> {
+  seoTitle?: T;
+  seoDescription?: T;
+  eyebrow?: T;
+  title?: T;
+  summary?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  video?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        description?: T;
+        url?: T;
+        transcript?: T;
+        transcriptLabel?: T;
+      };
+  experienceTitle?: T;
+  strengths?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  strengthsTitle?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials-page_select".
+ */
+export interface TestimonialsPageSelect<T extends boolean = true> {
+  seoTitle?: T;
+  seoDescription?: T;
+  eyebrow?: T;
+  title?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quote-page_select".
+ */
+export interface QuotePageSelect<T extends boolean = true> {
+  seoTitle?: T;
+  seoDescription?: T;
+  eyebrow?: T;
+  title?: T;
+  description?: T;
+  process?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  responseNote?: T;
+  privacyNote?: T;
+  nextStepsTitle?: T;
+  alternativesTitle?: T;
+  callLabel?: T;
+  emailLinkLabel?: T;
+  formEyebrow?: T;
+  formTitle?: T;
+  requiredFieldsLabel?: T;
+  scopeLegend?: T;
+  selectPlaceholder?: T;
+  helpTypeLabel?: T;
+  workTypeLabel?: T;
+  timelineLabel?: T;
+  budgetLabel?: T;
+  helpTypes?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        id?: T;
+      };
+  workTypes?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        id?: T;
+      };
+  timelines?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        id?: T;
+      };
+  budgets?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        id?: T;
+      };
+  contactMethods?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        id?: T;
+      };
+  contextLabel?: T;
+  contextPlaceholder?: T;
+  contextLegend?: T;
+  contextHelp?: T;
+  contactLegend?: T;
+  nameLabel?: T;
+  namePlaceholder?: T;
+  emailLabel?: T;
+  emailPlaceholder?: T;
+  companyLabel?: T;
+  companyPlaceholder?: T;
+  preferredContactLabel?: T;
+  submitLabel?: T;
+  submittingLabel?: T;
+  successMessage?: T;
+  errorMessage?: T;
+  successEyebrow?: T;
+  successTitle?: T;
+  sendAnotherLabel?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "archive-settings_select".
+ */
+export interface ArchiveSettingsSelect<T extends boolean = true> {
+  writingsTitle?: T;
+  writingsSeoDescription?: T;
+  filterTitle?: T;
+  filterDescription?: T;
+  postsPerPage?: T;
+  writingCtaLabel?: T;
+  readArticleLabel?: T;
+  projectsTitle?: T;
+  projectsSeoDescription?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "project-template_select".
+ */
+export interface ProjectTemplateSelect<T extends boolean = true> {
+  backLabel?: T;
+  stackLabel?: T;
+  linkLabel?: T;
+  defaultLinkLabel?: T;
+  linkDescription?: T;
+  storyTitle?: T;
+  previousLabel?: T;
+  nextLabel?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "system-pages_select".
+ */
+export interface SystemPagesSelect<T extends boolean = true> {
+  notFoundTitle?: T;
+  notFoundMessage?: T;
+  thankYouTitle?: T;
+  thankYouMessage?: T;
+  homeButtonLabel?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

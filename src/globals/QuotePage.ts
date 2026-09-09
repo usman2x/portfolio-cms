@@ -1,0 +1,68 @@
+import type { GlobalConfig } from 'payload'
+import { publicGlobalAccess, publicGlobalHooks, seoFields } from './shared'
+
+const optionsField = (name: string, label: string) => ({
+  name, type: 'array' as const, label, required: true,
+  fields: [
+    { name: 'label', type: 'text' as const, required: true },
+    { name: 'value', type: 'text' as const, required: true },
+  ],
+})
+
+export const QuotePage: GlobalConfig = {
+  slug: 'quote-page',
+  label: 'Quote Page',
+  access: publicGlobalAccess,
+  hooks: publicGlobalHooks,
+  fields: [
+    ...seoFields(),
+    { name: 'eyebrow', type: 'text', required: true },
+    { name: 'title', type: 'text', required: true },
+    { name: 'description', type: 'textarea', required: true },
+    {
+      name: 'process', type: 'array', fields: [
+        { name: 'title', type: 'text', required: true },
+        { name: 'description', type: 'textarea', required: true },
+      ],
+    },
+    { name: 'responseNote', type: 'text', required: true },
+    { name: 'privacyNote', type: 'text', required: true },
+    { name: 'nextStepsTitle', type: 'text', required: true },
+    { name: 'alternativesTitle', type: 'text', required: true },
+    { name: 'callLabel', type: 'text', required: true },
+    { name: 'emailLinkLabel', type: 'text', required: true },
+    { name: 'formEyebrow', type: 'text', required: true },
+    { name: 'formTitle', type: 'text', required: true },
+    { name: 'requiredFieldsLabel', type: 'text', required: true },
+    { name: 'scopeLegend', type: 'text', required: true },
+    { name: 'selectPlaceholder', type: 'text', required: true },
+    { name: 'helpTypeLabel', type: 'text', required: true },
+    { name: 'workTypeLabel', type: 'text', required: true },
+    { name: 'timelineLabel', type: 'text', required: true },
+    { name: 'budgetLabel', type: 'text', required: true },
+    optionsField('helpTypes', 'Help types'),
+    optionsField('workTypes', 'Work types'),
+    optionsField('timelines', 'Timelines'),
+    optionsField('budgets', 'Budget ranges'),
+    optionsField('contactMethods', 'Contact methods'),
+    { name: 'contextLabel', type: 'text', required: true },
+    { name: 'contextPlaceholder', type: 'textarea', required: true },
+    { name: 'contextLegend', type: 'text', required: true },
+    { name: 'contextHelp', type: 'text', required: true },
+    { name: 'contactLegend', type: 'text', required: true },
+    { name: 'nameLabel', type: 'text', required: true },
+    { name: 'namePlaceholder', type: 'text', required: true },
+    { name: 'emailLabel', type: 'text', required: true },
+    { name: 'emailPlaceholder', type: 'text', required: true },
+    { name: 'companyLabel', type: 'text', required: true },
+    { name: 'companyPlaceholder', type: 'text', required: true },
+    { name: 'preferredContactLabel', type: 'text', required: true },
+    { name: 'submitLabel', type: 'text', required: true },
+    { name: 'submittingLabel', type: 'text', required: true },
+    { name: 'successMessage', type: 'textarea', required: true },
+    { name: 'errorMessage', type: 'textarea', required: true },
+    { name: 'successEyebrow', type: 'text', required: true },
+    { name: 'successTitle', type: 'text', required: true },
+    { name: 'sendAnotherLabel', type: 'text', required: true },
+  ],
+}

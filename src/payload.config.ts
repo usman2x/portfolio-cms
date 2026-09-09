@@ -15,8 +15,19 @@ import sharp from 'sharp'
 
 import { Media } from '@/collections/Media'
 import { Posts } from '@/collections/Posts'
+import { QuoteRequests } from '@/collections/QuoteRequests'
 import { Tags } from '@/collections/Tags'
+import { Testimonials } from '@/collections/Testimonials'
 import { Users } from '@/collections/Users'
+import { WorkExperience } from '@/collections/WorkExperience'
+import { AboutPage } from '@/globals/AboutPage'
+import { ArchiveSettings } from '@/globals/ArchiveSettings'
+import { HomePage } from '@/globals/HomePage'
+import { ProjectTemplate } from '@/globals/ProjectTemplate'
+import { QuotePage } from '@/globals/QuotePage'
+import { SiteSettings } from '@/globals/SiteSettings'
+import { SystemPages } from '@/globals/SystemPages'
+import { TestimonialsPage } from '@/globals/TestimonialsPage'
 import { migrations } from '@/migrations'
 
 const filename = fileURLToPath(import.meta.url)
@@ -36,7 +47,8 @@ export default buildConfig({
       importMapFile: path.resolve(dirname, 'app/(payload)/admin/importMap.js'),
     },
   },
-  collections: [Users, Tags, Media, Posts],
+  collections: [Users, Tags, Media, Posts, WorkExperience, Testimonials, QuoteRequests],
+  globals: [SiteSettings, HomePage, AboutPage, TestimonialsPage, QuotePage, ArchiveSettings, ProjectTemplate, SystemPages],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   sharp,

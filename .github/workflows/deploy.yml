@@ -18,6 +18,7 @@ jobs:
       PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
       RAILWAY_DEPLOY_HOOK_URL: ${{ secrets.RAILWAY_DEPLOY_HOOK_URL }}
       UI_DEPLOY_WEBHOOK_URL: ${{ secrets.UI_DEPLOY_WEBHOOK_URL }}
+      UI_DEPLOY_WEBHOOK_TOKEN: ${{ secrets.UI_DEPLOY_WEBHOOK_TOKEN }}
 
     steps:
       - name: Checkout code

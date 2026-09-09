@@ -1,6 +1,8 @@
 import { sql } from '@payloadcms/db-postgres'
 import type { PayloadRequest } from 'payload'
 
+import { databaseTable } from '@/lib/databaseSchema'
+
 type UploadLike = {
   data?: Buffer
   mimetype?: string
@@ -39,7 +41,7 @@ const insertBlob = async (
   const db = getExecutor(req)
 
   await db.execute(
-    sql`INSERT INTO cms.media_blobs (media_id, variant, mime_type, byte_size, data) VALUES (${mediaId}, ${blob.variant}, ${blob.mimeType}, ${blob.byteSize}, ${blob.data})`,
+    sql`INSERT INTO ${databaseTable('media_blobs')} (media_id, variant, mime_type, byte_size, data) VALUES (${mediaId}, ${blob.variant}, ${blob.mimeType}, ${blob.byteSize}, ${blob.data})`,
   )
 }
 
@@ -49,7 +51,7 @@ export const replaceMediaBlobs = async (
   blobs: BlobRecord[],
 ): Promise<void> => {
   const db = getExecutor(req)
-  await db.execute(sql`DELETE FROM cms.media_blobs WHERE media_id = ${mediaId}`)
+  await db.execute(sql`DELETE FROM ${databaseTable('media_blobs')} WHERE media_id = ${mediaId}`)
 
   for (const blob of blobs) {
     await insertBlob(req, mediaId, blob)
@@ -58,7 +60,7 @@ export const replaceMediaBlobs = async (
 
 export const deleteMediaBlobs = async (req: PayloadRequest, mediaId: string): Promise<void> => {
   const db = getExecutor(req)
-  await db.execute(sql`DELETE FROM cms.media_blobs WHERE media_id = ${mediaId}`)
+  await db.execute(sql`DELETE FROM ${databaseTable('media_blobs')} WHERE media_id = ${mediaId}`)
 }
 
 export const buildBlobsFromRequest = (
@@ -78,14 +80,17 @@ export const buildBlobsFromRequest = (
     },
   ]
 
-  for (const [variant, data] of Object.entries(uploadSizes ?? {})) {
-    blobs.push({
-      variant,
-      mimeType: file.mimetype,
-      byteSize: data.byteLength,
-      data,
-    })
-  }
+  blobs.push(...buildSizeBlobs(uploadSizes, file.mimetype))
 
   return blobs
 }
+
+export const buildSizeBlobs = (
+  uploadSizes: Record<string, Buffer> | undefined,
+  mimeType: string,
+): BlobRecord[] => Object.entries(uploadSizes ?? {}).map(([variant, data]) => ({
+  variant,
+  mimeType,
+  byteSize: data.byteLength,
+  data,
+}))

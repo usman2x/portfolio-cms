@@ -4,13 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node --env-file=.env scripts/run-with-rotating-logs.mjs next dev",
-    "dev:plain": "next dev",
-    "dev:logs": "node --env-file=.env scripts/run-with-rotating-logs.mjs next dev",
+    "dev": "node --env-file=.env scripts/run-with-rotating-logs.mjs next dev -p 3001",
+    "dev:plain": "next dev -p 3001",
+    "dev:logs": "node --env-file=.env scripts/run-with-rotating-logs.mjs next dev -p 3001",
     "build": "next build",
-    "start": "node scripts/run-with-rotating-logs.mjs next start",
-    "start:plain": "next start",
-    "start:logs": "node scripts/run-with-rotating-logs.mjs next start",
+    "start": "node scripts/run-with-rotating-logs.mjs next start -p 3001",
+    "start:plain": "next start -p 3001",
+    "start:logs": "node scripts/run-with-rotating-logs.mjs next start -p 3001",
     "payload": "cross-env PAYLOAD_CONFIG_PATH=src/payload.config.ts payload",
     "generate:types": "npm run payload generate:types",
     "generate:importmap": "npm run payload generate:importmap",
@@ -19,18 +19,22 @@
     "migrate:init": "npm run migrate:create -- init-schema",
     "migrate:status": "npm run payload migrate:status",
     "db:check": "node --env-file=.env scripts/check-db-connection.mjs",
+    "seed:api": "npm run seed:dev",
+    "seed:core": "node --env-file=.env scripts/seed-api.mjs --core",
+    "seed:dev": "node --env-file=.env scripts/seed-api.mjs --dev",
     "ci": "npm run migrate && npm run build"
   },
   "dependencies": {
-    "@payloadcms/db-postgres": "^3.83.0",
-    "@payloadcms/next": "^3.83.0",
-    "@payloadcms/richtext-lexical": "^3.83.0",
+    "@payloadcms/db-postgres": "3.88.0",
+    "@payloadcms/next": "3.88.0",
+    "@payloadcms/richtext-lexical": "3.88.0",
     "cross-env": "^7.0.3",
-    "next": "^16.2.0",
-    "payload": "^3.83.0",
+    "graphql": "^16.11.0",
+    "next": "16.3.4",
+    "payload": "3.88.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "sharp": "^0.34.0",
+    "sharp": "0.35.4",
     "winston": "^3.18.3",
     "winston-daily-rotate-file": "^5.0.0"
   },
@@ -39,5 +43,11 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "typescript": "^5.8.3"
+  },
+  "overrides": {
+    "fast-uri": "3.1.6",
+    "immutable": "4.3.9",
+    "js-yaml": "4.3.1",
+    "ws": "8.21.0"
   }
 }

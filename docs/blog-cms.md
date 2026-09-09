@@ -333,7 +333,7 @@ Constraint:
 
 ## 16. API Contract
 
-Preferred public endpoints for the Gatsby site:
+Preferred public endpoints for the Next.js site:
 
 - `GET /api/posts`
 - `GET /api/posts/:id`
@@ -346,7 +346,7 @@ Chosen integration method:
 
 Why REST for this integration:
 
-- simpler cross-repo contract for Gatsby build-time fetching
+- simpler cross-repo contract for Next.js build-time fetching
 - easy support for filtering, sorting, pagination, and relationship depth
 - straightforward public access control for published content only
 
@@ -443,10 +443,10 @@ GitHub Actions deployment workflow:
 
 - implement PostgreSQL-backed image storage
 - support original and derived variants
-- expose media routes usable by the Gatsby site
+- expose media routes usable by the Next.js site
 
 ### Delivery
 
 - add migrations workflow
 - deploy to Railway staging
-- document API contract for the Gatsby site
+- document API contract for the Next.js site

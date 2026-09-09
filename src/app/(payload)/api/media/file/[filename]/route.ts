@@ -2,11 +2,14 @@ import config from '@payload-config'
 import { sql } from '@payloadcms/db-postgres'
 import { getPayload } from 'payload'
 
+import { databaseTable } from '@/lib/databaseSchema'
+
 type MediaLookupRow = {
   filename?: string | null
   id?: string
   sizes_card_filename?: string | null
   sizes_og_filename?: string | null
+  sizes_thumbnail_filename?: string | null
 }
 
 type BlobRow = {
@@ -55,7 +58,7 @@ const readBlob = async (
   variant: string,
 ): Promise<BlobRow | null> => {
   const result = await execute(
-    sql`SELECT data, mime_type, byte_size FROM cms.media_blobs WHERE media_id = ${mediaID} AND variant = ${variant} LIMIT 1`,
+    sql`SELECT data, mime_type, byte_size FROM ${databaseTable('media_blobs')} WHERE media_id = ${mediaID} AND variant = ${variant} LIMIT 1`,
   )
 
   const [row] = rowsFromQuery<BlobRow>(result)
@@ -66,6 +69,7 @@ const variantFromFilename = (row: MediaLookupRow, filename: string): string => {
   if (row.filename === filename) return 'original'
   if (row.sizes_card_filename === filename) return 'card'
   if (row.sizes_og_filename === filename) return 'og'
+  if (row.sizes_thumbnail_filename === filename) return 'thumbnail'
   return 'original'
 }
 
@@ -83,7 +87,7 @@ export const GET = async (
   }
 
   const mediaResult = await execute(
-    sql`SELECT id, filename, sizes_card_filename, sizes_og_filename FROM cms.media WHERE filename = ${filename} OR sizes_card_filename = ${filename} OR sizes_og_filename = ${filename} LIMIT 1`,
+    sql`SELECT id, filename, sizes_card_filename, sizes_og_filename, sizes_thumbnail_filename FROM ${databaseTable('media')} WHERE filename = ${filename} OR sizes_card_filename = ${filename} OR sizes_og_filename = ${filename} OR sizes_thumbnail_filename = ${filename} LIMIT 1`,
   )
 
   const [mediaRow] = rowsFromQuery<MediaLookupRow>(mediaResult)

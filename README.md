@@ -43,10 +43,26 @@ Payload CMS repository for managing blog content used by the portfolio site.
 3. Run `npm run dev`.
 4. Create initial admin user at `/admin`.
 
+For a local API-backed sample dataset, run the CMS on port `3001` and execute:
+
+```bash
+npm run seed:dev
+```
+
+The seed script logs in through `/api/users/login`, creates the first administrator through `/api/users/first-register` when necessary, and creates or updates tags and published posts through the public REST routes. It is idempotent by slug and refuses non-local targets unless `ALLOW_REMOTE_SEED=true` is explicitly set.
+
 Connection check:
+
 - `npm run db:check`
 
 Environment variables:
+
+- `UI_PUBLIC_URL`: primary portfolio origin allowed to submit quote requests
+- `QUOTE_ALLOWED_ORIGINS`: comma-separated additional allowed origins
+
+## Testimonials
+
+Testimonials are managed under **Content → Testimonials** in Payload Admin. Published records are publicly readable; drafts remain admin-only. Use `featured` to include a recommendation on the homepage and `sortOrder` to control its position. The local REST seed creates or updates the reference recommendations by name.
 
 - `DATABASE_URL`
   - PostgreSQL connection string used by Payload.
@@ -57,7 +73,9 @@ Environment variables:
 - `NEXT_PUBLIC_SERVER_URL`
   - Public base URL of the CMS app.
 - `UI_DEPLOY_WEBHOOK_URL`
-  - Optional UI deployment webhook triggered after published post changes.
+  - Optional UI deployment webhook triggered after public content changes.
+- `UI_DEPLOY_WEBHOOK_TOKEN`
+  - Optional bearer token. Required when `UI_DEPLOY_WEBHOOK_URL` is the GitHub repository-dispatch API.
 - `LOG_DIR`
   - Directory where rotated logs are written.
 - `LOG_FILENAME`
@@ -74,6 +92,7 @@ Environment variables:
   - Stable symlink name pointing to the current log file.
 
 Rotating logs:
+
 - `npm run dev` now runs with file rotation by default
 - `npm run start` now runs with file rotation by default
 - plain mode (no wrapper): `npm run dev:plain`, `npm run start:plain`
@@ -85,6 +104,11 @@ Rotating logs:
 
 - For normal local setup:
   - `npm run migrate`
+- After creating the first administrator in a new environment, run `npm run seed:core` to idempotently install or update canonical project case studies, their tags, and testimonials.
+- The core seed also uploads every available project image to Media, stores the original plus generated thumbnail variants in PostgreSQL, and attaches the ordered gallery to its project.
+- Use `npm run seed:core -- --refresh-media` only when existing seeded files need their generated variants rebuilt.
+- Run `npm run seed:dev` for local-only blog, page, and experience fixtures. Do not run the development seed in production.
+- Database migrations remain schema-only; editorial baseline content is managed by explicit seed commands.
 - `npm run migrate:init` is only for generating a new migration during schema development.
 - Use `npm run migrate:create <name>` after collection/config changes.
 - Commit payload config changes and migration files together.
@@ -133,8 +157,9 @@ Optional GitHub repository secret:
 Optional runtime environment values:
 
 - `UI_DEPLOY_WEBHOOK_URL`
-  - set this to a deployment-provider webhook or relay endpoint for the UI repo
-  - examples: Vercel Deploy Hook, Netlify Build Hook, GitHub Actions dispatch relay, or a custom deployment webhook endpoint
+  - for the current GitHub Pages workflow, set this to `https://api.github.com/repos/usman2x/portfolio-ui/dispatches`
+  - set `UI_DEPLOY_WEBHOOK_TOKEN` to a fine-grained GitHub token with repository Actions write access
+  - Vercel, Netlify, or a custom deploy hook can also be used without the GitHub-specific payload
   - the CMS will `POST` to it when a published post is created, updated, unpublished, or otherwise changes public visibility
   - backward-compatible alias still accepted in code: `UI_DEPLOY_HOOK_URL`
 
@@ -155,10 +180,10 @@ Webhook distinction:
 ### Publish Behavior
 
 - publishing a post makes it available on the CMS public API immediately
-- the Gatsby UI reflects that content on its next successful rebuild or deployment
+- the Next.js UI reflects that content on its next successful rebuild or deployment
 - the chosen frontend model is static generation plus rebuild on publish
 - if `UI_DEPLOY_WEBHOOK_URL` is configured, the CMS automatically triggers the UI deployment webhook for published-post changes
-- the current UI deployment flow performs a normal site deployment, which means a full Gatsby rebuild rather than an affected-page-only rebuild
+- the current UI deployment flow performs a normal static Next.js rebuild rather than an affected-page-only rebuild
 - runtime blog rendering through SSR or a hybrid framework is a future option, not the current delivery model
 
 ## Public REST Endpoints
@@ -170,6 +195,7 @@ Webhook distinction:
 - `GET /api/media/file/:filename` (binary media from Postgres blobs)
 
 Notes:
+
 - `GET /api/media` and `GET /api/media/:id` are served by Payload REST.
 - `GET /api/media/file/:filename` is custom and backed by `cms.media_blobs`.
 

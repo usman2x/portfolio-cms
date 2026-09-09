@@ -7,26 +7,19 @@ import type {
 
 import { slugify } from '@/lib/slugify'
 import { assertPublishRequirements, getNextPostValue } from '@/lib/publishValidation'
+import { notifyUiDeploy } from '@/hooks/uiDeploy'
 
 type PostLike = {
   author?: string
+  content?: unknown
   coverImage?: string | { id?: string }
   id?: string
   ogImage?: string | { id?: string }
+  projectGallery?: Array<string | { id?: string }>
   publishedAt?: string | null
   slug?: string
   status?: 'draft' | 'published'
   title?: string
-}
-
-const getUiDeployWebhookUrl = (): string => {
-  const value =
-    process.env.UI_DEPLOY_WEBHOOK_URL ||
-    process.env.UI_DEPLOY_HOOK_URL ||
-    process.env.PORTFOLIO_UI_DEPLOY_HOOK_URL ||
-    ''
-
-  return value.trim()
 }
 
 const isPublishedPost = (post: PostLike | null | undefined): boolean => post?.status === 'published'
@@ -36,69 +29,25 @@ const shouldTriggerUiDeploy = (
   previous: PostLike | null | undefined,
 ): boolean => isPublishedPost(current) || isPublishedPost(previous)
 
-const triggerUiDeployWebhook = async ({
-  current,
-  operation,
-  previous,
-}: {
-  current: PostLike | null | undefined
-  operation: 'create' | 'update'
-  previous: PostLike | null | undefined
-}): Promise<void> => {
-  const webhookUrl = getUiDeployWebhookUrl()
-  if (!webhookUrl || !shouldTriggerUiDeploy(current, previous)) {
-    return
-  }
-
-  const payload = {
-    event: 'post.changed',
-    operation,
-    current: {
-      id: current?.id ?? null,
-      slug: current?.slug ?? null,
-      status: current?.status ?? null,
-      title: current?.title ?? null,
-    },
-    previous: {
-      id: previous?.id ?? null,
-      slug: previous?.slug ?? null,
-      status: previous?.status ?? null,
-      title: previous?.title ?? null,
-    },
-  }
-
-  try {
-    const response = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-cms-event': 'post.changed',
-      },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(10000),
-    })
-
-    if (!response.ok) {
-      throw new Error(
-        `UI deploy webhook responded with ${response.status} ${response.statusText}`,
-      )
-    }
-
-    console.info(
-      `[cms] Triggered UI deploy webhook for ${operation} on post "${current?.slug ?? current?.id ?? 'unknown'}".`,
-    )
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    console.error(
-      `[cms] Failed to trigger UI deploy webhook for post "${current?.slug ?? current?.id ?? 'unknown'}": ${message}`,
-    )
-  }
-}
-
 const relationToID = (value: string | { id?: string } | undefined): string | undefined => {
   if (!value) return undefined
   if (typeof value === 'string') return value
   return value.id
+}
+
+const relationIDs = (values: Array<string | { id?: string }> | undefined): string[] =>
+  (values ?? []).map(relationToID).filter(Boolean) as string[]
+
+export const collectUploadIDs = (value: unknown, result = new Set<string>()): Set<string> => {
+  if (!value || typeof value !== 'object') return result
+  const node = value as { children?: unknown[]; type?: string; value?: string | { id?: string } }
+  if (node.type === 'upload') {
+    const id = relationToID(node.value)
+    if (id) result.add(id)
+  }
+  if (Array.isArray(node.children)) node.children.forEach((child) => collectUploadIDs(child, result))
+  if ('root' in node) collectUploadIDs((node as { root?: unknown }).root, result)
+  return result
 }
 
 export const setPostDefaults: CollectionBeforeValidateHook = async ({
@@ -173,14 +122,16 @@ export const markPublishedMediaAsPublic: CollectionAfterChangeHook = async ({
     return doc
   }
 
-  const mediaIDs = [relationToID(current.coverImage), relationToID(current.ogImage)].filter(
-    Boolean,
-  ) as string[]
+  const mediaIDs = Array.from(
+    collectUploadIDs(current.content, new Set(
+      [relationToID(current.coverImage), relationToID(current.ogImage), ...relationIDs(current.projectGallery)].filter(Boolean) as string[],
+    )),
+  )
 
   const previousMediaIDs = new Set(
-    [relationToID(previous?.coverImage), relationToID(previous?.ogImage)].filter(
-      Boolean,
-    ) as string[],
+    collectUploadIDs(previous?.content, new Set(
+      [relationToID(previous?.coverImage), relationToID(previous?.ogImage), ...relationIDs(previous?.projectGallery)].filter(Boolean) as string[],
+    )),
   )
 
   const changed = mediaIDs.filter((id) => !previousMediaIDs.has(id))
@@ -204,11 +155,9 @@ export const triggerPublishedPostUiDeploy: CollectionAfterChangeHook = async ({
   operation,
   previousDoc,
 }) => {
-  await triggerUiDeployWebhook({
-    current: doc as PostLike,
-    operation,
-    previous: (previousDoc ?? null) as PostLike | null,
-  })
+  const current = doc as PostLike
+  const previous = (previousDoc ?? null) as PostLike | null
+  if (shouldTriggerUiDeploy(current, previous)) await notifyUiDeploy('post.changed', operation)
 
   return doc
 }

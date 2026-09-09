@@ -9,9 +9,11 @@ import type {
 
 import {
   buildBlobsFromRequest,
+  buildSizeBlobs,
   deleteMediaBlobs,
   replaceMediaBlobs,
 } from '@/lib/mediaBlobs'
+import { collectUploadIDs } from '@/hooks/posts'
 
 type ContextLike = {
   mediaBlobs?: ReturnType<typeof buildBlobsFromRequest>
@@ -57,7 +59,12 @@ export const captureIncomingMediaBlobs: CollectionBeforeOperationHook = ({
 }
 
 export const persistMediaBlobs: CollectionAfterChangeHook = async ({ context, doc, req }) => {
-  const blobs = (context as ContextLike).mediaBlobs ?? []
+  const capturedBlobs = (context as ContextLike).mediaBlobs ?? []
+  const original = capturedBlobs.find((blob) => blob.variant === 'original')
+  const generatedSizes = original
+    ? buildSizeBlobs(req.payloadUploadSizes as Record<string, Buffer> | undefined, original.mimeType)
+    : []
+  const blobs = [...capturedBlobs.filter((blob) => blob.variant === 'original'), ...generatedSizes]
   const mediaID = String((doc as { id: string }).id)
 
   if (blobs.length === 0) {
@@ -101,6 +108,11 @@ export const preventDeletingMediaUsedByPublishedPosts: CollectionBeforeDeleteHoo
               equals: id,
             },
           },
+          {
+            projectGallery: {
+              contains: id,
+            },
+          },
         ],
       },
     ],
@@ -115,5 +127,17 @@ export const preventDeletingMediaUsedByPublishedPosts: CollectionBeforeDeleteHoo
 
   if (posts.totalDocs > 0) {
     throw new Error('Cannot delete media referenced by a published post.')
+  }
+
+  const published = await req.payload.find({
+    collection: 'posts',
+    depth: 0,
+    limit: 1000,
+    pagination: false,
+    where: { status: { equals: 'published' } },
+  })
+
+  if (published.docs.some((post) => collectUploadIDs(post.content).has(String(id)))) {
+    throw new Error('Cannot delete media embedded in a published post.')
   }
 }

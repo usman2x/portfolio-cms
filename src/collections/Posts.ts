@@ -165,5 +165,21 @@ export const Posts: CollectionConfig = {
       type: 'checkbox',
       defaultValue: false,
     },
+    {
+      name: 'projectRole',
+      type: 'text',
+      admin: {
+        description: 'Optional role shown on project previews and case studies.',
+      },
+    },
+    {
+      name: 'projectGallery',
+      type: 'relationship',
+      relationTo: 'media',
+      hasMany: true,
+      admin: {
+        description: 'Full project gallery. The first image is used as the project cover when no separate cover image is selected.',
+      },
+    },
   ],
 }
