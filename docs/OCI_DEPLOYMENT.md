@@ -99,6 +99,15 @@ curl -I http://127.0.0.1:3001/admin
 
 Run migrations before restarting into the new build. Rebuild the UI after publishing content because the UI is statically exported.
 
+The OCI deployment uses the UI repository's loopback-only deployment listener to automate that rebuild. Configure:
+
+```dotenv
+UI_DEPLOY_WEBHOOK_URL=http://127.0.0.1:9010/deploy
+UI_DEPLOY_WEBHOOK_TOKEN=<shared-random-token>
+```
+
+Restart `portfolio-cms` after changing `.env`. Publishing posts, testimonials, work experience, or globals then sends an authenticated rebuild request. The listener debounces batches and rebuilds the static UI without restarting Caddy. See the UI repository's OCI runbook for its systemd service.
+
 ## Optional canonical seed
 
 `npm run seed:core` idempotently loads permanent site content: case studies, project media, required tags, testimonials, work experience, and site globals. `npm run seed:dev` loads the same content plus test writings and should not be used in production.
@@ -144,7 +153,7 @@ Then open `http://127.0.0.1:3001/admin` on the local machine.
 
 **Do migrations seed content?** No. They only change the database schema.
 
-**Why does publishing not immediately change the UI?** The UI uses static generation and must be rebuilt after CMS content changes.
+**Why does publishing not immediately change the UI?** The UI uses static generation. On OCI, the configured local deployment webhook automatically starts a debounced rebuild; content becomes visible after that build succeeds.
 
 ## Troubleshooting
 
