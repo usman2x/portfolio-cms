@@ -101,7 +101,7 @@ Run migrations before restarting into the new build. Rebuild the UI after publis
 
 ## Optional canonical seed
 
-`npm run seed:core` idempotently loads canonical case studies, project media, tags, and testimonials. It does not load global page content or work experience. `seed:dev` contains development fixtures and should not be used unintentionally in production.
+`npm run seed:core` idempotently loads permanent site content: case studies, project media, required tags, testimonials, work experience, and site globals. `npm run seed:dev` loads the same content plus test writings and should not be used in production.
 
 Seeding is intentionally deferred in the initial OCI deployment. The schema migration and service deployment are complete without it. When content initialization is approved, run the seed against `http://127.0.0.1:3001`, then rebuild the static UI.
 

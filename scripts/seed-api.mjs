@@ -283,7 +283,7 @@ for (const sample of selectedPosts) {
   }
 }
 
-for (const entry of mode === "dev" ? workExperience : []) {
+for (const entry of workExperience) {
   const existing = await findByCompany(entry.company);
   const body = { ...entry, highlights: entry.highlights.map((text) => ({ text })) };
   const result = existing
@@ -310,7 +310,7 @@ for (const testimonial of testimonials) {
   console.log(`${existing ? "updated" : "created"} testimonial: ${testimonial.name}`);
 }
 
-for (const [slug, seed] of mode === "dev" ? Object.entries(globals) : []) {
+for (const [slug, seed] of Object.entries(globals)) {
   const body = { ...seed };
   if (slug === "home-page") {
     body.featuredProjects = body.featuredProjectSlugs.map((projectSlug) => postIDs.get(projectSlug)).filter(Boolean);
