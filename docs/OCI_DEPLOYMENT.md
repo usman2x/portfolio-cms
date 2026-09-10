@@ -103,6 +103,39 @@ Run migrations before restarting into the new build. Rebuild the UI after publis
 
 `npm run seed:core` idempotently loads canonical case studies, project media, tags, and testimonials. It does not load global page content or work experience. `seed:dev` contains development fixtures and should not be used unintentionally in production.
 
+Seeding is intentionally deferred in the initial OCI deployment. The schema migration and service deployment are complete without it. When content initialization is approved, run the seed against `http://127.0.0.1:3001`, then rebuild the static UI.
+
+Use temporary shell variables so administrator credentials are not saved in `.env` or shell history:
+
+```bash
+read -r -p "Admin email: " SEED_ADMIN_EMAIL
+read -r -s -p "Admin password: " SEED_ADMIN_PASSWORD
+echo
+export SEED_ADMIN_EMAIL SEED_ADMIN_PASSWORD
+export CMS_API_URL=http://127.0.0.1:3001
+npm run seed:core
+unset SEED_ADMIN_EMAIL SEED_ADMIN_PASSWORD CMS_API_URL
+```
+
+## Remaining production steps
+
+1. Confirm OCI ingress permits TCP `80` and temporary TCP `8080` for this VM.
+2. Confirm `curl -I http://127.0.0.1:3001/admin` succeeds on the VM.
+3. Confirm `curl -I http://<PUBLIC_IP>:8080/admin` succeeds from a different machine.
+4. Create the initial administrator through Payload Admin or the approved core seed.
+5. Populate required globals and editorial content in Payload Admin.
+6. Rebuild the UI after content changes.
+7. Add a domain and move both public services to Caddy-managed HTTPS.
+8. Remove temporary public port `8080` after the CMS has an HTTPS hostname or an approved same-origin routing design.
+
+Do not enter administrator credentials over public HTTP. Until HTTPS is configured, administer Payload through an SSH tunnel:
+
+```bash
+ssh -L 3001:127.0.0.1:3001 -i <private-key> ubuntu@<PUBLIC_IP>
+```
+
+Then open `http://127.0.0.1:3001/admin` on the local machine.
+
 ## FAQ
 
 **Why is port 3001 not public?** Caddy is the public entry point. Payload should remain behind the reverse proxy.
@@ -120,6 +153,7 @@ Run migrations before restarting into the new build. Rebuild the UI after publis
 - Database: `npm run db:check`
 - Migration state: `npm run migrate:status`; every expected migration should show `Ran: Yes`.
 - Port listener: `sudo ss -ltnp | grep ':3001'`
+- External timeout while the local endpoint works: verify OCI NSG/security-list ingress and inspect host counters with `sudo iptables -L INPUT -n -v --line-numbers`.
 - `npm ci` lock mismatch: fix and commit `package-lock.json` from a development checkout. For an immediate diagnostic deployment, `npm install --package-lock-only && npm ci` regenerates it locally.
 - Neon SSL warning: use `sslmode=verify-full` to preserve strict certificate verification explicitly.
 - CORS failures: ensure `UI_PUBLIC_URL` or `QUOTE_ALLOWED_ORIGINS` exactly matches the browser-visible UI origin.
