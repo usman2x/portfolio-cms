@@ -67,7 +67,7 @@ export const POST = async (request: Request): Promise<Response> => {
 
   try {
     const body = (await request.json()) as Record<string, unknown>;
-    if (body.website) {
+    if (body.website || body.fax_number) {
       return Response.json({ ok: true }, { headers, status: 201 });
     }
 
