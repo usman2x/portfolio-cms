@@ -8,8 +8,30 @@ const webhookUrl = () => (
 ).trim()
 
 export const notifyUiDeploy = async (event: string, operation: string) => {
+  const result = await requestUiDeploy(event, operation)
+  if (result.ok) {
+    console.info(`[cms] Triggered UI deploy webhook for ${event}.`)
+  } else if (result.reason !== 'not-configured') {
+    console.error(`[cms] UI deploy webhook failed for ${event}: ${result.message}`)
+  }
+}
+
+type UiDeployResult =
+  | { ok: true }
+  | { message: string; ok: false; reason: 'not-configured' | 'request-failed' }
+
+export const requestUiDeploy = async (
+  event: string,
+  operation: string,
+): Promise<UiDeployResult> => {
   const url = webhookUrl()
-  if (!url) return
+  if (!url) {
+    return {
+      message: 'UI_DEPLOY_WEBHOOK_URL is not configured.',
+      ok: false,
+      reason: 'not-configured',
+    }
+  }
 
   const githubDispatch = /^https:\/\/api\.github\.com\/repos\/[^/]+\/[^/]+\/dispatches\/?$/.test(url)
   const token = (process.env.UI_DEPLOY_WEBHOOK_TOKEN || '').trim()
@@ -30,9 +52,13 @@ export const notifyUiDeploy = async (event: string, operation: string) => {
       signal: AbortSignal.timeout(10000),
     })
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`)
-    console.info(`[cms] Triggered UI deploy webhook for ${event}.`)
+    return { ok: true }
   } catch (error) {
-    console.error(`[cms] UI deploy webhook failed for ${event}: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    return {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      ok: false,
+      reason: 'request-failed',
+    }
   }
 }
 

@@ -163,7 +163,19 @@ The optional runtime `UI_DEPLOY_WEBHOOK_URL` points to the OCI loopback rebuild 
 - the chosen frontend model is static generation plus rebuild on publish
 - if `UI_DEPLOY_WEBHOOK_URL` is configured, the CMS automatically triggers the UI deployment webhook for published-post changes
 - the current UI deployment flow performs a normal static Next.js rebuild rather than an affected-page-only rebuild
+- authenticated administrators can also request the same rebuild manually from the **Public website** card on the CMS dashboard
 - runtime blog rendering through SSR or a hybrid framework is a future option, not the current delivery model
+
+### Test a CMS-triggered UI rebuild
+
+1. Confirm `portfolio-ui-deploy-webhook` is active on the production VM:
+   `sudo systemctl status portfolio-ui-deploy-webhook`.
+2. Confirm the listener is healthy: `curl http://127.0.0.1:9010/health`.
+3. Confirm `UI_DEPLOY_WEBHOOK_URL` and `UI_DEPLOY_WEBHOOK_TOKEN` are present in the CMS `.env`, then restart `portfolio-cms` if either value changed.
+4. Open Payload Admin and change a small value in **Site Settings**, such as the short label, then save it. Global settings use the same automatic rebuild hook as published posts.
+5. Follow the listener logs with `sudo journalctl -u portfolio-ui-deploy-webhook -f`. A successful test logs the rebuild start and exit code `0`.
+6. Refresh the public site after the build completes and verify the changed value.
+7. To test the manual path, use **Rebuild UI** on the Payload dashboard and verify the same listener logs. The button queues the rebuild and immediately reports whether the listener accepted the request.
 
 ## Public REST Endpoints
 

@@ -29,6 +29,7 @@ import { SiteSettings } from '@/globals/SiteSettings'
 import { SystemPages } from '@/globals/SystemPages'
 import { TestimonialsPage } from '@/globals/TestimonialsPage'
 import { migrations } from '@/migrations'
+import { rebuildUIEndpoint } from '@/endpoints/rebuildUI'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -42,12 +43,16 @@ const bytea = customType<{ data: Buffer; notNull: false; default: false }>({
 export default buildConfig({
   admin: {
     user: Users.slug,
+    components: {
+      beforeDashboard: ['/components/RebuildUI'],
+    },
     importMap: {
       baseDir: path.resolve(dirname),
       importMapFile: path.resolve(dirname, 'app/(payload)/admin/importMap.js'),
     },
   },
   collections: [Users, Tags, Media, Posts, WorkExperience, Testimonials, QuoteRequests],
+  endpoints: [rebuildUIEndpoint],
   globals: [SiteSettings, HomePage, AboutPage, TestimonialsPage, QuotePage, ArchiveSettings, ProjectTemplate, SystemPages],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
