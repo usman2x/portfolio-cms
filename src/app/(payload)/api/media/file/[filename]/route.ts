@@ -121,7 +121,7 @@ export const GET = async (
 
   return new Response(bytes, {
     headers: {
-      'Cache-Control': 'public, max-age=60',
+      'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800',
       'Content-Length': String(blob.byte_size ?? bytes.byteLength),
       'Content-Type': blob.mime_type,
     },

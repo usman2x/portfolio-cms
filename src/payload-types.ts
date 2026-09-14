@@ -701,6 +701,12 @@ export interface SiteSetting {
   professionalTitle: string;
   defaultSeoTitle: string;
   defaultSeoDescription: string;
+  logo?: (string | null) | Media;
+  /**
+   * Fallback public path used when no logo media item is selected.
+   */
+  logoPath?: string | null;
+  logoAlt: string;
   portrait?: (string | null) | Media;
   /**
    * Fallback path, such as /images/usman.jpg.
@@ -906,6 +912,7 @@ export interface QuotePage {
 export interface ArchiveSetting {
   id: string;
   writingsTitle: string;
+  writingsDescription: string;
   writingsSeoDescription: string;
   filterTitle: string;
   filterDescription: string;
@@ -913,6 +920,7 @@ export interface ArchiveSetting {
   writingCtaLabel: string;
   readArticleLabel: string;
   projectsTitle: string;
+  projectsDescription: string;
   projectsSeoDescription: string;
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -958,6 +966,9 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   professionalTitle?: T;
   defaultSeoTitle?: T;
   defaultSeoDescription?: T;
+  logo?: T;
+  logoPath?: T;
+  logoAlt?: T;
   portrait?: T;
   portraitPath?: T;
   portraitAlt?: T;
@@ -1174,6 +1185,7 @@ export interface QuotePageSelect<T extends boolean = true> {
  */
 export interface ArchiveSettingsSelect<T extends boolean = true> {
   writingsTitle?: T;
+  writingsDescription?: T;
   writingsSeoDescription?: T;
   filterTitle?: T;
   filterDescription?: T;
@@ -1181,6 +1193,7 @@ export interface ArchiveSettingsSelect<T extends boolean = true> {
   writingCtaLabel?: T;
   readArticleLabel?: T;
   projectsTitle?: T;
+  projectsDescription?: T;
   projectsSeoDescription?: T;
   updatedAt?: T;
   createdAt?: T;

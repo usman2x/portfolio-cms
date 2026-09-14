@@ -258,6 +258,8 @@ export const globals = {
     defaultSeoTitle: "Muhammad Usman",
     defaultSeoDescription:
       "Senior full-stack and systems engineering across Java, Python, React, data platforms, cloud infrastructure, and practical AI automation.",
+    logoPath: "/images/usman.png",
+    logoAlt: "Muhammad Usman",
     portraitPath: "/images/usman.jpg",
     portraitAlt: "Portrait of Muhammad Usman",
     resumeLink:
@@ -474,6 +476,8 @@ export const globals = {
   },
   "archive-settings": {
     writingsTitle: "Writings",
+    writingsDescription:
+      "Practical notes on building reliable software, data platforms, and useful AI systems.",
     writingsSeoDescription:
       "Software engineering notes on backend systems, data platforms, cloud delivery, and practical AI work.",
     filterTitle: "Browse by topic",
@@ -483,6 +487,8 @@ export const globals = {
     writingCtaLabel: "Need help with similar work?",
     readArticleLabel: "Read article",
     projectsTitle: "Projects",
+    projectsDescription:
+      "A focused selection of systems and products shaped around real delivery constraints and measurable outcomes.",
     projectsSeoDescription:
       "Selected software engineering, data platform, cloud, and product delivery projects by Muhammad Usman.",
   },

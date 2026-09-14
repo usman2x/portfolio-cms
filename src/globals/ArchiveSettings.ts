@@ -8,6 +8,7 @@ export const ArchiveSettings: GlobalConfig = {
   hooks: publicGlobalHooks,
   fields: [
     { name: 'writingsTitle', type: 'text', required: true },
+    { name: 'writingsDescription', type: 'textarea', required: true },
     { name: 'writingsSeoDescription', type: 'textarea', required: true },
     { name: 'filterTitle', type: 'text', required: true },
     { name: 'filterDescription', type: 'textarea', required: true },
@@ -15,6 +16,7 @@ export const ArchiveSettings: GlobalConfig = {
     { name: 'writingCtaLabel', type: 'text', required: true },
     { name: 'readArticleLabel', type: 'text', required: true },
     { name: 'projectsTitle', type: 'text', required: true },
+    { name: 'projectsDescription', type: 'textarea', required: true },
     { name: 'projectsSeoDescription', type: 'textarea', required: true },
   ],
 }
