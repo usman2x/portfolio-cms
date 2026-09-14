@@ -1,7 +1,10 @@
 type PartialPost = {
   content?: unknown
+  externalPlatform?: 'medium' | 'linkedin' | 'other' | null
+  externalUrl?: string | null
   excerpt?: string
   publishedAt?: string | null
+  publicationType?: 'native' | 'external'
   seoDescription?: string
   seoTitle?: string
   slug?: string
@@ -38,6 +41,9 @@ export const assertPublishRequirements = (
   const slug = getNextPostValue(data, originalDoc, 'slug')
   const excerpt = getNextPostValue(data, originalDoc, 'excerpt')
   const content = getNextPostValue(data, originalDoc, 'content')
+  const publicationType = getNextPostValue(data, originalDoc, 'publicationType') || 'native'
+  const externalPlatform = getNextPostValue(data, originalDoc, 'externalPlatform')
+  const externalUrl = getNextPostValue(data, originalDoc, 'externalUrl')
   const seoTitle = getNextPostValue(data, originalDoc, 'seoTitle')
   const seoDescription = getNextPostValue(data, originalDoc, 'seoDescription')
   const publishedAt = getNextPostValue(data, originalDoc, 'publishedAt')
@@ -45,7 +51,12 @@ export const assertPublishRequirements = (
   if (isBlank(title)) missing.push('title')
   if (isBlank(slug)) missing.push('slug')
   if (isBlank(excerpt)) missing.push('excerpt')
-  if (!content) missing.push('content')
+  if (publicationType === 'external') {
+    if (isBlank(externalPlatform)) missing.push('externalPlatform')
+    if (isBlank(externalUrl)) missing.push('externalUrl')
+  } else if (!content) {
+    missing.push('content')
+  }
   if (isBlank(seoTitle)) missing.push('seoTitle')
   if (isBlank(seoDescription)) missing.push('seoDescription')
   if (!publishedAt) missing.push('publishedAt')

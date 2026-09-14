@@ -243,7 +243,23 @@ export interface Post {
   title: string;
   slug: string;
   excerpt: string;
-  content: {
+  /**
+   * External articles appear in writing lists but open on the original platform and do not create a local detail page.
+   */
+  publicationType: 'native' | 'external';
+  externalPlatform?: ('medium' | 'linkedin' | 'other') | null;
+  /**
+   * The original Medium, LinkedIn, or other article URL.
+   */
+  externalUrl?: string | null;
+  /**
+   * Optional override, for example “Read on Medium”.
+   */
+  externalCtaLabel?: string | null;
+  /**
+   * Required for native articles and project case studies. External writing entries link to their original publication instead.
+   */
+  content?: {
     root: {
       type: string;
       children: {
@@ -257,7 +273,7 @@ export interface Post {
       version: number;
     };
     [k: string]: unknown;
-  };
+  } | null;
   author: string | User;
   tags?: (string | Tag)[] | null;
   coverImage?: (string | null) | Media;
@@ -548,6 +564,10 @@ export interface PostsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   excerpt?: T;
+  publicationType?: T;
+  externalPlatform?: T;
+  externalUrl?: T;
+  externalCtaLabel?: T;
   content?: T;
   author?: T;
   tags?: T;

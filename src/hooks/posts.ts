@@ -13,9 +13,12 @@ type PostLike = {
   author?: string
   content?: unknown
   coverImage?: string | { id?: string }
+  externalPlatform?: 'medium' | 'linkedin' | 'other' | null
+  externalUrl?: string | null
   id?: string
   ogImage?: string | { id?: string }
   projectGallery?: Array<string | { id?: string }>
+  publicationType?: 'native' | 'external'
   publishedAt?: string | null
   slug?: string
   status?: 'draft' | 'published'

@@ -13,7 +13,7 @@ export const Posts: CollectionConfig = {
   slug: 'posts',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'status', 'publishedAt', 'updatedAt'],
+    defaultColumns: ['title', 'publicationType', 'status', 'publishedAt', 'updatedAt'],
   },
   access: {
     create: isAdmin,
@@ -48,10 +48,64 @@ export const Posts: CollectionConfig = {
       required: true,
     },
     {
+      name: 'publicationType',
+      type: 'select',
+      required: true,
+      defaultValue: 'native',
+      options: [
+        { label: 'Native article or case study', value: 'native' },
+        { label: 'External article', value: 'external' },
+      ],
+      admin: {
+        description: 'External articles appear in writing lists but open on the original platform and do not create a local detail page.',
+      },
+    },
+    {
+      name: 'externalPlatform',
+      type: 'select',
+      options: [
+        { label: 'Medium', value: 'medium' },
+        { label: 'LinkedIn', value: 'linkedin' },
+        { label: 'Other', value: 'other' },
+      ],
+      admin: {
+        condition: (_, siblingData) => siblingData?.publicationType === 'external',
+      },
+    },
+    {
+      name: 'externalUrl',
+      type: 'text',
+      admin: {
+        condition: (_, siblingData) => siblingData?.publicationType === 'external',
+        description: 'The original Medium, LinkedIn, or other article URL.',
+      },
+      validate: (value: string | string[] | null | undefined) => {
+        const normalized = Array.isArray(value) ? value[0] : value
+        if (!normalized) return true
+        try {
+          const parsed = new URL(normalized)
+          return parsed.protocol === 'https:' ? true : 'External URL must use HTTPS.'
+        } catch {
+          return 'External URL must be a valid URL.'
+        }
+      },
+    },
+    {
+      name: 'externalCtaLabel',
+      type: 'text',
+      admin: {
+        condition: (_, siblingData) => siblingData?.publicationType === 'external',
+        description: 'Optional override, for example “Read on Medium”.',
+      },
+    },
+    {
       name: 'content',
       type: 'richText',
       editor: lexicalEditor(),
-      required: true,
+      admin: {
+        condition: (_, siblingData) => siblingData?.publicationType !== 'external',
+        description: 'Required for native articles and project case studies. External writing entries link to their original publication instead.',
+      },
     },
     {
       name: 'author',
