@@ -337,15 +337,17 @@ export interface Testimonial {
  */
 export interface QuoteRequest {
   id: string;
-  name: string;
-  email: string;
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
   company?: string | null;
   helpType: string;
-  workType: string;
-  timeline: string;
-  budget: string;
+  workType?: string | null;
+  timeline?: string | null;
+  budget?: string | null;
   context: string;
-  preferredContact: string;
+  wantsReply?: boolean | null;
+  preferredContact?: string | null;
   status: 'new' | 'contacted' | 'closed' | 'spam';
   sourceUrl?: string | null;
   userAgent?: string | null;
@@ -613,12 +615,14 @@ export interface TestimonialsSelect<T extends boolean = true> {
 export interface QuoteRequestsSelect<T extends boolean = true> {
   name?: T;
   email?: T;
+  phone?: T;
   company?: T;
   helpType?: T;
   workType?: T;
   timeline?: T;
   budget?: T;
   context?: T;
+  wantsReply?: T;
   preferredContact?: T;
   status?: T;
   sourceUrl?: T;
