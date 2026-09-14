@@ -381,11 +381,11 @@ Workflow:
 - local Payload app
 - seeded admin user
 
-### Staging
+### Production
 
-- Railway PostgreSQL
-- Railway app deployment for CMS
-- migration run before app rollout completes
+- Payload CMS runs on the OCI VM under systemd.
+- PostgreSQL remains an external service.
+- migrations run before the CMS service restarts.
 
 Required environment values:
 
@@ -396,19 +396,12 @@ Required environment values:
 Optional publish automation value:
 
 - `UI_DEPLOY_WEBHOOK_URL`
-  - deployment-provider-agnostic webhook endpoint used to trigger the UI rebuild after published content changes
-  - examples include a Vercel Deploy Hook, Netlify Build Hook, GitHub Actions relay endpoint, or a custom deployment webhook
+  - OCI loopback endpoint used to trigger the UI rebuild after published content changes
+  - production value: `http://127.0.0.1:9010/deploy`
   - backward-compatible alias may still be accepted during transition: `UI_DEPLOY_HOOK_URL`
 
-GitHub Actions deployment workflow:
-
-- workflow file: `.github/workflows/deploy.yml`
-- trigger: push to `main` and manual dispatch
-- steps: install dependencies, verify DB access, run migrations, verify build, trigger Railway deploy hook
-- required GitHub secrets:
-  - `DATABASE_URL`
-  - `PAYLOAD_SECRET`
-  - `RAILWAY_DEPLOY_HOOK_URL`
+Deployment is performed directly on OCI through the UI repository's `npm run deploy:oci` command.
+Provider deployment workflows are intentionally not used.
 
 ## 19. Repo Tasks
 
@@ -448,5 +441,5 @@ GitHub Actions deployment workflow:
 ### Delivery
 
 - add migrations workflow
-- deploy to Railway staging
+- deploy directly to the OCI VM
 - document API contract for the Next.js site

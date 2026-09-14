@@ -112,14 +112,15 @@ Rotating logs:
 - `npm run migrate:init` is only for generating a new migration during schema development.
 - Use `npm run migrate:create <name>` after collection/config changes.
 - Commit payload config changes and migration files together.
-- Run `npm run migrate` before deploy/build in CI.
+- Run `npm run migrate` before building and restarting the OCI CMS service.
 
 ## Deployment
 
 ### Production Target
 
-- Railway app deployment for the Payload application
-- PostgreSQL database for content and media blobs
+- OCI VM deployment for the Payload application
+- external PostgreSQL database for content and media blobs
+- systemd process management behind Caddy
 
 ### Local Verification
 
@@ -131,44 +132,22 @@ npm run build
 
 Use `npm run dev` for local development after the checks pass.
 
-### Automatic Deployment From `main`
+### Production Deployment
 
-- Workflow: `.github/workflows/deploy.yml`
-- Trigger: push to `main` and manual `workflow_dispatch`
-- Job order:
-  - `npm ci`
-  - `npm run db:check`
-  - `npm run migrate`
-  - `npm run build`
-  - trigger Railway via deploy hook
+Deploy from the UI repository on the OCI VM. Its deployment script updates both repositories,
+checks the database, runs migrations, builds and restarts the CMS, clean-builds the UI, and verifies
+the local Caddy endpoints:
 
-Required GitHub repository secrets:
+```bash
+cd /srv/portfolio/portfolio-ui
+npm run deploy:oci
+```
 
-- `DATABASE_URL`
-- `PAYLOAD_SECRET`
-- `RAILWAY_DEPLOY_HOOK_URL`
+See `docs/OCI_DEPLOYMENT.md` in both repositories for provisioning and troubleshooting. Production
+deployment runs directly on the VM rather than through a provider-hosted pipeline.
 
-Optional GitHub repository secret:
-
-- `UI_DEPLOY_WEBHOOK_URL`
-  - used only for a deployment warning in CI
-  - the actual CMS publish automation depends on this value being present in the running CMS environment
-
-Optional runtime environment values:
-
-- `UI_DEPLOY_WEBHOOK_URL`
-  - for the current GitHub Pages workflow, set this to `https://api.github.com/repos/usman2x/portfolio-ui/dispatches`
-  - set `UI_DEPLOY_WEBHOOK_TOKEN` to a fine-grained GitHub token with repository Actions write access
-  - Vercel, Netlify, or a custom deploy hook can also be used without the GitHub-specific payload
-  - the CMS will `POST` to it when a published post is created, updated, unpublished, or otherwise changes public visibility
-  - backward-compatible alias still accepted in code: `UI_DEPLOY_HOOK_URL`
-
-Webhook distinction:
-
-- `RAILWAY_DEPLOY_HOOK_URL`
-  - used by GitHub Actions to deploy the CMS application on Railway after CI succeeds
-- `UI_DEPLOY_WEBHOOK_URL`
-  - used by the running CMS app to trigger a frontend rebuild after published content changes
+The optional runtime `UI_DEPLOY_WEBHOOK_URL` points to the OCI loopback rebuild listener at
+`http://127.0.0.1:9010/deploy`; `UI_DEPLOY_WEBHOOK_TOKEN` authenticates that local request.
 
 ### Deployment Rules
 
