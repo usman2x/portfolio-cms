@@ -37,11 +37,23 @@ Payload CMS repository for managing blog content used by the portfolio site.
 
 ## Local Setup
 
-1. Copy `.env.example` to `.env` and set secure values.
-   Use Node/Postgres URL format with credentials, for example: `postgresql://postgres:postgres@localhost:5432/postgres` (not `jdbc:`).
-2. Install dependencies with your package manager.
-3. Run `npm run dev`.
-4. Create initial admin user at `/admin`.
+Use Node.js `20.9.0` or newer and npm `9` or newer. Then:
+
+```bash
+npm ci
+cp .env.example .env
+npm run migrate
+npm run db:check
+npm run dev
+```
+
+If Node Version Manager is installed, run `nvm use` before these commands.
+
+Set secure values in `.env` before running migrations. Use Node/Postgres URL format with credentials,
+for example `postgresql://postgres:postgres@localhost:5432/postgres` (not `jdbc:`).
+
+See [docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md) for fresh setup, the full-stack startup
+order, schema development, verification, and troubleshooting.
 
 For a local API-backed sample dataset, run the CMS on port `3001` and execute:
 
@@ -50,6 +62,8 @@ npm run seed:dev
 ```
 
 The seed script logs in through `/api/users/login`, creates the first administrator through `/api/users/first-register` when necessary, and creates or updates tags and published posts through the public REST routes. It is idempotent by slug and refuses non-local targets unless `ALLOW_REMOTE_SEED=true` is explicitly set.
+
+After seeding, open `http://localhost:3001/admin` and sign in with the seed credentials from `.env`.
 
 Connection check:
 

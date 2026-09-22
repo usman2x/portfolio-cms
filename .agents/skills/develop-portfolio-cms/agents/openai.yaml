@@ -1,0 +1,4 @@
+interface:
+  display_name: "Develop Portfolio CMS"
+  short_description: "Safely evolve the Payload CMS and content model"
+  default_prompt: "Use $develop-portfolio-cms to implement a safe Payload CMS change."
