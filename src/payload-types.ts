@@ -761,6 +761,29 @@ export interface HomePage {
   primaryCtaLabel: string;
   secondaryCtaLabel: string;
   postHeroLine: string;
+  /**
+   * Short label above the company list, e.g. "Trusted by teams at".
+   */
+  proofTitle?: string | null;
+  /**
+   * Company or client names shown under the homepage introduction.
+   */
+  proofCompanies?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Up to four headline numbers backed by case studies or experience.
+   */
+  proofStats?:
+    | {
+        value: string;
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
   writingsTitle: string;
   writingsArchiveLabel: string;
   writingsLimit?: number | null;
@@ -1022,6 +1045,20 @@ export interface HomePageSelect<T extends boolean = true> {
   primaryCtaLabel?: T;
   secondaryCtaLabel?: T;
   postHeroLine?: T;
+  proofTitle?: T;
+  proofCompanies?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  proofStats?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        id?: T;
+      };
   writingsTitle?: T;
   writingsArchiveLabel?: T;
   writingsLimit?: T;

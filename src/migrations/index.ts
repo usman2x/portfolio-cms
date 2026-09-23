@@ -11,6 +11,7 @@ import * as migration_20260909_163300_remove_project_image_path from './20260909
 import * as migration_20260910_033012_external_writing_entries from './20260910_033012_external_writing_entries';
 import * as migration_20260914_120000_generalize_contact_requests from './20260914_120000_generalize_contact_requests';
 import * as migration_20260914_220000_navigation_branding_and_archive_intros from './20260914_220000_navigation_branding_and_archive_intros';
+import * as migration_20260923_155913_home_proof_points from './20260923_155913_home_proof_points';
 
 export const migrations = [
   {
@@ -77,5 +78,10 @@ export const migrations = [
     up: migration_20260914_220000_navigation_branding_and_archive_intros.up,
     down: migration_20260914_220000_navigation_branding_and_archive_intros.down,
     name: '20260914_220000_navigation_branding_and_archive_intros',
+  },
+  {
+    up: migration_20260923_155913_home_proof_points.up,
+    down: migration_20260923_155913_home_proof_points.down,
+    name: '20260923_155913_home_proof_points'
   },
 ];

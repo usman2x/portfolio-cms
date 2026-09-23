@@ -312,6 +312,21 @@ export const globals = {
     secondaryCtaLabel: "View Projects",
     postHeroLine:
       "Latest writing, selected work, and practical ways to start a conversation are below.",
+    proofTitle: "Trusted by teams at",
+    proofCompanies: [
+      "Walmart",
+      "Alex Solutions",
+      "Confiz",
+      "Seulah",
+      "StreetApp",
+      "Cloud Card",
+    ].map((text) => ({ text })),
+    proofStats: [
+      { value: "9+", label: "years shipping production systems" },
+      { value: "40+", label: "data technologies in metadata tooling" },
+      { value: "25,000+", label: "customers on a lending platform" },
+      { value: "10% → 80%", label: "test coverage on Walmart’s data platform" },
+    ],
     writingsTitle: "Latest writings",
     writingsArchiveLabel: "All writings",
     writingsLimit: 2,

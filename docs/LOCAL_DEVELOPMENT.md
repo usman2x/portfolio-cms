@@ -62,6 +62,8 @@ npm run db:check
 npm run build
 ```
 
+Development-mode schema push is disabled (`push: false` in `src/payload.config.ts`), so `npm run dev` never alters the database; stop the dev server, create and apply a migration, then restart it. Migrations that follow hand-written ones without a `.json` snapshot may repeat earlier statements, so trim them to the intended change.
+
 Review generated migrations before applying them. Commit the Payload configuration, generated types, and migration files together. Use `migrate:init` only to establish an entirely new migration baseline.
 
 If Payload reports that development-mode schema pushes have diverged from migrations or warns about possible data loss, answer **no**. Back up and reconcile that database, or switch `DATABASE_URL` to a fresh local database. Never accept a destructive prompt as part of routine startup.

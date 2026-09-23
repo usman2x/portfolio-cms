@@ -60,6 +60,8 @@ export default buildConfig({
   db: postgresAdapter({
     idType: 'uuid',
     migrationDir: path.resolve(dirname, 'migrations'),
+    // Schema changes go through committed migrations only; dev-mode pushes cause drift.
+    push: false,
     schemaName,
     pool: {
       connectionString: process.env.DATABASE_URL || '',
