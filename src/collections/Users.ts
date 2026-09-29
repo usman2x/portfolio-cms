@@ -13,7 +13,14 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
   },
-  auth: true,
+  auth: {
+    cookies: {
+      sameSite: 'Lax',
+      secure: (process.env.NEXT_PUBLIC_SERVER_URL || '').startsWith('https://'),
+    },
+    lockTime: 15 * 60 * 1000,
+    maxLoginAttempts: 5,
+  },
   access: {
     admin: isAdmin,
     create: isAdminOrBootstrap,

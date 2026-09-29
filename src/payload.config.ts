@@ -34,6 +34,11 @@ import { rebuildUIEndpoint } from '@/endpoints/rebuildUI'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const schemaName = process.env.DB_SCHEMA || 'cms'
+const serverURL = (process.env.NEXT_PUBLIC_SERVER_URL || '').trim().replace(/\/+$/, '')
+const csrfOrigins = (process.env.CSRF_ALLOWED_ORIGINS || '')
+  .split(',')
+  .map((origin) => origin.trim().replace(/\/+$/, ''))
+  .filter(Boolean)
 const bytea = customType<{ data: Buffer; notNull: false; default: false }>({
   dataType() {
     return 'bytea'
@@ -41,6 +46,10 @@ const bytea = customType<{ data: Buffer; notNull: false; default: false }>({
 })
 
 export default buildConfig({
+  serverURL,
+  // Payload adds serverURL to this allow-list; cookie auth from any other origin is rejected.
+  csrf: csrfOrigins,
+  cookiePrefix: 'portfolio',
   admin: {
     user: Users.slug,
     components: {

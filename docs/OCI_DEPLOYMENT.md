@@ -50,7 +50,7 @@ LOG_DIR=/srv/portfolio/portfolio-cms/logs
 
 Generate `PAYLOAD_SECRET` with `openssl rand -hex 32`. Never commit `.env`.
 
-`NEXT_PUBLIC_SERVER_URL` is compiled into the admin build, so rebuild after changing it. The quote endpoint accepts browser requests only from `UI_PUBLIC_URL` and the comma-separated `QUOTE_ALLOWED_ORIGINS`; each value must match the browser origin exactly (scheme and host, no trailing slash). `http://localhost:3000` is allowed only when `NODE_ENV` is not `production`.
+`NEXT_PUBLIC_SERVER_URL` is compiled into the admin build, so rebuild after changing it. It is also Payload's `serverURL`: it is the only origin allowed to use admin cookie auth (plus optional `CSRF_ALLOWED_ORIGINS`), and an `https://` value makes the `portfolio-token` auth cookie `Secure`. Five failed logins lock an account for 15 minutes; an administrator can unlock it. The CMS listens on `127.0.0.1:3001` only. The quote endpoint accepts browser requests only from `UI_PUBLIC_URL` and the comma-separated `QUOTE_ALLOWED_ORIGINS`; each value must match the browser origin exactly (scheme and host, no trailing slash). `http://localhost:3000` is allowed only when `NODE_ENV` is not `production`.
 
 ## systemd
 
@@ -146,7 +146,7 @@ Administer Payload only over `https://cms.themuhammadusman.com/admin`, never ove
 ssh -L 3001:127.0.0.1:3001 -i <private-key> ubuntu@<PUBLIC_IP>
 ```
 
-Then open `http://127.0.0.1:3001/admin` on the local machine.
+Then open `http://localhost:3001/admin` on the local machine. Admin cookie auth only accepts the `NEXT_PUBLIC_SERVER_URL` origin, so temporarily add `CSRF_ALLOWED_ORIGINS=http://localhost:3001` to `.env` and restart `portfolio-cms` while using the tunnel; remove it afterwards.
 
 ## Moving an existing IP deployment to the domain
 
