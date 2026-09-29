@@ -12,7 +12,7 @@ const allowedOrigins = (): Set<string> =>
     [
       process.env.UI_PUBLIC_URL,
       ...(process.env.QUOTE_ALLOWED_ORIGINS || "").split(","),
-      "http://localhost:3000",
+      process.env.NODE_ENV === "production" ? undefined : "http://localhost:3000",
     ]
       .map((value) => value?.trim().replace(/\/$/, ""))
       .filter(Boolean) as string[],
