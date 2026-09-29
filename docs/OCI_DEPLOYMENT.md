@@ -6,9 +6,13 @@ This runbook deploys Payload CMS directly on Ubuntu 22.04 using Node.js 22 throu
 
 - Repository: `/srv/portfolio/portfolio-cms`
 - CMS process: `http://127.0.0.1:3001`
-- Temporary public CMS address: `http://<PUBLIC_IP>:8080`
+- Public CMS and admin: `https://cms.themuhammadusman.com`
+- Public UI (allowed CORS origin): `https://www.themuhammadusman.com`
 - Process manager: `portfolio-cms.service`
+- Reverse proxy and TLS: Caddy, configured in the UI repository's OCI runbook
 - Database: external PostgreSQL; port 5432 is not opened on OCI
+
+The hostnames are configuration only: they live in `.env` here, in the UI `.env.production`, in DNS, and in the Caddyfile.
 
 ## First deployment
 
@@ -37,14 +41,16 @@ Minimum production environment:
 DATABASE_URL="postgresql://<user>:<password>@<host>/<database>?sslmode=verify-full&channel_binding=require"
 DB_SCHEMA=cms
 PAYLOAD_SECRET="<openssl-rand-hex-32-output>"
-NEXT_PUBLIC_SERVER_URL=http://<PUBLIC_IP>:8080
+NEXT_PUBLIC_SERVER_URL=https://cms.themuhammadusman.com
 CMS_API_URL=http://127.0.0.1:3001
-UI_PUBLIC_URL=http://<PUBLIC_IP>
-QUOTE_ALLOWED_ORIGINS=http://<PUBLIC_IP>
+UI_PUBLIC_URL=https://www.themuhammadusman.com
+QUOTE_ALLOWED_ORIGINS=https://www.themuhammadusman.com,https://themuhammadusman.com
 LOG_DIR=/srv/portfolio/portfolio-cms/logs
 ```
 
 Generate `PAYLOAD_SECRET` with `openssl rand -hex 32`. Never commit `.env`.
+
+`NEXT_PUBLIC_SERVER_URL` is compiled into the admin build, so rebuild after changing it. The quote endpoint accepts browser requests only from `UI_PUBLIC_URL` and the comma-separated `QUOTE_ALLOWED_ORIGINS`; each value must match the browser origin exactly (scheme and host, no trailing slash). `http://localhost:3000` is allowed only when `NODE_ENV` is not `production`.
 
 ## systemd
 
@@ -79,6 +85,8 @@ sudo systemctl enable --now portfolio-cms
 sudo systemctl status portfolio-cms --no-pager
 curl -I http://127.0.0.1:3001/admin
 ```
+
+Caddy publishes the service on `https://cms.themuhammadusman.com`; see the UI repository's OCI runbook for the Caddyfile, DNS, and firewall rules.
 
 ## Updates
 
@@ -128,16 +136,11 @@ unset SEED_ADMIN_EMAIL SEED_ADMIN_PASSWORD CMS_API_URL
 
 ## Remaining production steps
 
-1. Confirm OCI ingress permits TCP `80` and temporary TCP `8080` for this VM.
-2. Confirm `curl -I http://127.0.0.1:3001/admin` succeeds on the VM.
-3. Confirm `curl -I http://<PUBLIC_IP>:8080/admin` succeeds from a different machine.
-4. Create the initial administrator through Payload Admin or the approved core seed.
-5. Populate required globals and editorial content in Payload Admin.
-6. Rebuild the UI after content changes.
-7. Add a domain and move both public services to Caddy-managed HTTPS.
-8. Remove temporary public port `8080` after the CMS has an HTTPS hostname or an approved same-origin routing design.
+1. Create the initial administrator through Payload Admin or the approved core seed.
+2. Populate required globals and editorial content in Payload Admin.
+3. Rebuild the UI after content changes.
 
-Do not enter administrator credentials over public HTTP. Until HTTPS is configured, administer Payload through an SSH tunnel:
+Administer Payload only over `https://cms.themuhammadusman.com/admin`, never over plain HTTP. If HTTPS is unavailable, use an SSH tunnel instead:
 
 ```bash
 ssh -L 3001:127.0.0.1:3001 -i <private-key> ubuntu@<PUBLIC_IP>
@@ -145,11 +148,29 @@ ssh -L 3001:127.0.0.1:3001 -i <private-key> ubuntu@<PUBLIC_IP>
 
 Then open `http://127.0.0.1:3001/admin` on the local machine.
 
+## Moving an existing IP deployment to the domain
+
+On a VM that still serves the CMS on `http://<PUBLIC_IP>:8080`, follow the cutover steps in the UI repository's OCI runbook. The CMS part is:
+
+```bash
+cd /srv/portfolio/portfolio-cms
+nano .env   # set NEXT_PUBLIC_SERVER_URL, UI_PUBLIC_URL, QUOTE_ALLOWED_ORIGINS as above
+nvm use 22
+set -a
+source .env
+set +a
+npm run build
+sudo systemctl restart portfolio-cms
+curl -I --resolve cms.themuhammadusman.com:443:127.0.0.1 https://cms.themuhammadusman.com/admin
+```
+
+Remove the temporary `8080` listener from Caddy, UFW, iptables, and OCI only after the HTTPS admin login works.
+
 ## FAQ
 
 **Why is port 3001 not public?** Caddy is the public entry point. Payload should remain behind the reverse proxy.
 
-**Why is CMS on port 8080?** It provides a separate origin while no domain is available. With a domain, replace it with a CMS subdomain on HTTPS.
+**Why is the CMS on its own subdomain?** It gives Payload Admin a separate origin, so its `/_next/*` assets never collide with the UI's, and CORS can allow exactly the UI origin.
 
 **Do migrations seed content?** No. They only change the database schema.
 
@@ -165,5 +186,7 @@ Then open `http://127.0.0.1:3001/admin` on the local machine.
 - External timeout while the local endpoint works: verify OCI NSG/security-list ingress and inspect host counters with `sudo iptables -L INPUT -n -v --line-numbers`.
 - `npm ci` lock mismatch: fix and commit `package-lock.json` from a development checkout. For an immediate diagnostic deployment, `npm install --package-lock-only && npm ci` regenerates it locally.
 - Neon SSL warning: use `sslmode=verify-full` to preserve strict certificate verification explicitly.
-- CORS failures: ensure `UI_PUBLIC_URL` or `QUOTE_ALLOWED_ORIGINS` exactly matches the browser-visible UI origin.
+- CORS failures: ensure `UI_PUBLIC_URL` or `QUOTE_ALLOWED_ORIGINS` exactly matches the browser-visible UI origin, including `https://` and the `www` prefix if used. Restart `portfolio-cms` after changing them.
+- Admin loads but assets or API calls point at the old host: `NEXT_PUBLIC_SERVER_URL` changed without a rebuild.
+- External timeout on `https://cms.themuhammadusman.com`: check DNS, TCP `443` ingress, and Caddy certificate logs as described in the UI runbook.
 - After changing `.env`, rebuild when public Next.js variables changed and restart `portfolio-cms`.
