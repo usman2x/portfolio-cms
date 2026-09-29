@@ -14,6 +14,8 @@ This runbook deploys Payload CMS directly on Ubuntu 22.04 using Node.js 22 throu
 
 The hostnames are configuration only: they live in `.env` here, in the UI `.env.production`, in DNS, and in the Caddyfile.
 
+The CMS is not reachable on the bare IP: `http://<PUBLIC_IP>:8080` now serves only the rem-labs deployment that shares this VM, and returns `404` for portfolio paths. See "Shared VM", "Caddy", and "Backups and rollback" in the UI repository's OCI runbook before changing Caddy, the firewall, or environment files.
+
 ## First deployment
 
 ```bash
@@ -122,6 +124,8 @@ Restart `portfolio-cms` after changing `.env`. Publishing posts, testimonials, w
 
 Seeding is intentionally deferred in the initial OCI deployment. The schema migration and service deployment are complete without it. When content initialization is approved, run the seed against `http://127.0.0.1:3001`, then rebuild the static UI.
 
+The seed updates records by slug, name, or company and replaces every global it defines. Once content has been edited in Payload Admin, do not run it against production: it would overwrite those edits. Change production content in the admin instead.
+
 Use temporary shell variables so administrator credentials are not saved in `.env` or shell history:
 
 ```bash
@@ -136,9 +140,8 @@ unset SEED_ADMIN_EMAIL SEED_ADMIN_PASSWORD CMS_API_URL
 
 ## Remaining production steps
 
-1. Create the initial administrator through Payload Admin or the approved core seed.
-2. Populate required globals and editorial content in Payload Admin.
-3. Rebuild the UI after content changes.
+1. Populate the Home Page proof points (title, companies, stats) and any other empty globals in Payload Admin.
+2. Confirm each save triggers a successful UI rebuild (see the UI runbook's rebuild tests).
 
 Administer Payload only over `https://cms.themuhammadusman.com/admin`, never over plain HTTP. If HTTPS is unavailable, use an SSH tunnel instead:
 
@@ -154,6 +157,7 @@ On a VM that still serves the CMS on `http://<PUBLIC_IP>:8080`, follow the cutov
 
 ```bash
 cd /srv/portfolio/portfolio-cms
+cp -p .env .env.pre-domain-$(date +%Y%m%d)
 nano .env   # set NEXT_PUBLIC_SERVER_URL, UI_PUBLIC_URL, QUOTE_ALLOWED_ORIGINS as above
 nvm use 22
 set -a
@@ -164,7 +168,9 @@ sudo systemctl restart portfolio-cms
 curl -I --resolve cms.themuhammadusman.com:443:127.0.0.1 https://cms.themuhammadusman.com/admin
 ```
 
-Remove the temporary `8080` listener from Caddy, UFW, iptables, and OCI only after the HTTPS admin login works.
+Retire the IP entry point only after the HTTPS admin login works. On a VM without other tenants, remove the `:8080` listener from Caddy, UFW, iptables, and OCI. On the shared production VM, keep `:8080` for rem-labs and replace only its portfolio catch-all with `respond 404`. Remove `http://<PUBLIC_IP>` from `QUOTE_ALLOWED_ORIGINS` and restart `portfolio-cms`.
+
+After deploying the auth hardening, existing admin sessions end: the auth cookie is now `portfolio-token`, so every administrator must log in again.
 
 ## FAQ
 
