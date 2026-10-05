@@ -255,6 +255,8 @@ for (const sample of selectedPosts) {
     featured: sample.featured,
     projectRole: sample.projectRole,
     projectOutcome: sample.projectOutcome,
+    // Case studies set publishedAt to encode their listing order; undefined keeps the stored date.
+    publishedAt: sample.publishedAt,
     coverImage: galleryIDs[0] || undefined,
     projectGallery: galleryIDs,
   };

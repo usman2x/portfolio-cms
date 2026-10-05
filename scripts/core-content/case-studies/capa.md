@@ -1,18 +1,14 @@
 ## Case Study: Building a Zero-Friction B2B Network for Connected Warehouses
 
-Architected a multi-tenant platform that lets warehouses sell to dealerships directly through their existing ERPs, 
+Architected a multi-tenant platform that lets warehouses sell to dealerships directly through their existing ERPs,
 featuring zero-friction QuickBooks onboarding and LLM-powered order predictions.
 
-## Project Information
-
-* Role: Technical Architect • AI Product Engineer • Backend Engineer
-* Industry: Automotive Parts • B2B Commerce • ERP Integration • AI
 
 ## The Problem
-Warehouses struggled to scale sales because selling to external dealerships required manual entry across conflicting software. 
+Warehouses struggled to scale sales because selling to external dealerships required manual entry across conflicting software.
 Dealerships had to browse dozens of isolated portals to find stock, while warehouse admins lacked any predictive tools to forecast costs or order demand.
 
-##  Technical Solutions & Direct Results
+## Technical Solutions & Direct Results
 1. Zero-Friction QuickBooks Onboarding: I built automated background data pipelines that pull legacy products, past orders, and customer profiles instantly upon connection, eliminating manual cleanup for new warehouses.
 2. Multi-Tenant ERP Architecture: I designed an isolated database schema that safely hosts multiple ERP networks simultaneously, enabling the platform to scale to new accounting software without risking data leaks.
 3. LLM Order Forecasting & Cost Tracking: I developed an AI data pipeline that analyzes historical purchasing habits to predict future dealership stock needs, populating an admin dashboard with automated, itemized cost margins.
@@ -31,4 +27,3 @@ Dealerships had to browse dozens of isolated portals to find stock, while wareho
 
 ## Links
 1. https://www.coastlineapa.com
-
