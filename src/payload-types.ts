@@ -73,6 +73,7 @@ export interface Config {
     posts: Post;
     'work-experience': WorkExperience;
     testimonials: Testimonial;
+    services: Service;
     'quote-requests': QuoteRequest;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -87,6 +88,7 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     'work-experience': WorkExperienceSelect<false> | WorkExperienceSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
+    services: ServicesSelect<false> | ServicesSelect<true>;
     'quote-requests': QuoteRequestsSelect<false> | QuoteRequestsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -244,7 +246,7 @@ export interface Post {
   slug: string;
   excerpt: string;
   /**
-   * External articles appear in writing lists but open on the original platform and do not create a local detail page.
+   * External articles appear in article lists but open on the original platform and do not create a local detail page.
    */
   publicationType: 'native' | 'external';
   externalPlatform?: ('medium' | 'linkedin' | 'other') | null;
@@ -257,7 +259,7 @@ export interface Post {
    */
   externalCtaLabel?: string | null;
   /**
-   * Required for native articles and project case studies. External writing entries link to their original publication instead.
+   * Required for native articles and project case studies. External article entries link to their original publication instead.
    */
   content?: {
     root: {
@@ -293,6 +295,10 @@ export interface Post {
    * Optional role shown on project previews and case studies.
    */
   projectRole?: string | null;
+  /**
+   * Optional one-line result shown on homepage project cards, e.g. "Test coverage raised from 10% to 80%".
+   */
+  projectOutcome?: string | null;
   /**
    * Full project gallery. The first image is used as the project cover when no separate cover image is selected.
    */
@@ -342,6 +348,45 @@ export interface Testimonial {
   sourceLabel?: string | null;
   sourceUrl?: string | null;
   featured?: boolean | null;
+  sortOrder?: number | null;
+  status: 'draft' | 'published';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Engagement types shown on the homepage. Add one row per way to work together.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services".
+ */
+export interface Service {
+  id: string;
+  /**
+   * Short name, e.g. "Consultancy" or "Technical co-founder".
+   */
+  title: string;
+  /**
+   * One or two sentences on the card: who it is for and what they get.
+   */
+  summary: string;
+  /**
+   * Optional short points, e.g. "Architecture review", "Hiring plan". Up to four.
+   */
+  highlights?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Contact wizard intent this card preselects. Must match a Contact page "Help types" value, e.g. "Project or services" or "Consultancy".
+   */
+  contactIntent: string;
+  /**
+   * Link text on the card, e.g. "Start a project enquiry".
+   */
+  ctaLabel: string;
+  showOnHome?: boolean | null;
   sortOrder?: number | null;
   status: 'draft' | 'published';
   updatedAt: string;
@@ -417,6 +462,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'testimonials';
         value: string | Testimonial;
+      } | null)
+    | ({
+        relationTo: 'services';
+        value: string | Service;
       } | null)
     | ({
         relationTo: 'quote-requests';
@@ -582,6 +631,7 @@ export interface PostsSelect<T extends boolean = true> {
   readingTimeMinutes?: T;
   featured?: T;
   projectRole?: T;
+  projectOutcome?: T;
   projectGallery?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -623,6 +673,27 @@ export interface TestimonialsSelect<T extends boolean = true> {
   sourceLabel?: T;
   sourceUrl?: T;
   featured?: T;
+  sortOrder?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services_select".
+ */
+export interface ServicesSelect<T extends boolean = true> {
+  title?: T;
+  summary?: T;
+  highlights?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  contactIntent?: T;
+  ctaLabel?: T;
+  showOnHome?: T;
   sortOrder?: T;
   status?: T;
   updatedAt?: T;
@@ -760,6 +831,10 @@ export interface HomePage {
     | null;
   primaryCtaLabel: string;
   secondaryCtaLabel: string;
+  /**
+   * Optional reassurance line under the hero buttons, e.g. what the call covers.
+   */
+  primaryCtaNote?: string | null;
   postHeroLine: string;
   /**
    * Short label above the company list, e.g. "Trusted by teams at".
@@ -785,11 +860,24 @@ export interface HomePage {
       }[]
     | null;
   writingsTitle: string;
+  /**
+   * One line under the homepage Articles heading.
+   */
+  writingsDescription?: string | null;
   writingsArchiveLabel: string;
   writingsLimit?: number | null;
   projectsTitle: string;
   projectsArchiveLabel: string;
   featuredProjects?: (string | Post)[] | null;
+  /**
+   * Heading of the homepage "Ways to work together" section. Leave empty to hide the section.
+   */
+  servicesTitle?: string | null;
+  /**
+   * One sentence under the services heading.
+   */
+  servicesDescription?: string | null;
+  servicesLimit?: number | null;
   testimonialsEyebrow: string;
   testimonialsTitle: string;
   testimonialsDescription: string;
@@ -831,6 +919,10 @@ export interface AboutPage {
       }[]
     | null;
   strengthsTitle: string;
+  /**
+   * Optional quote shown on the About page. Leave empty to hide the section.
+   */
+  featuredTestimonial?: (string | null) | Testimonial;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1044,6 +1136,7 @@ export interface HomePageSelect<T extends boolean = true> {
       };
   primaryCtaLabel?: T;
   secondaryCtaLabel?: T;
+  primaryCtaNote?: T;
   postHeroLine?: T;
   proofTitle?: T;
   proofCompanies?:
@@ -1060,11 +1153,15 @@ export interface HomePageSelect<T extends boolean = true> {
         id?: T;
       };
   writingsTitle?: T;
+  writingsDescription?: T;
   writingsArchiveLabel?: T;
   writingsLimit?: T;
   projectsTitle?: T;
   projectsArchiveLabel?: T;
   featuredProjects?: T;
+  servicesTitle?: T;
+  servicesDescription?: T;
+  servicesLimit?: T;
   testimonialsEyebrow?: T;
   testimonialsTitle?: T;
   testimonialsDescription?: T;
@@ -1108,6 +1205,7 @@ export interface AboutPageSelect<T extends boolean = true> {
         id?: T;
       };
   strengthsTitle?: T;
+  featuredTestimonial?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

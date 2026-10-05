@@ -168,9 +168,27 @@ export const testimonials = [
   status: "published",
 }));
 
+export const services = [
+  {
+    title: "Project or services",
+    summary: "Tell me about a product, platform, or engineering need.",
+    contactIntent: "Project or services",
+    ctaLabel: "Start a project enquiry",
+    sortOrder: 10,
+  },
+  {
+    title: "Consultancy",
+    summary: "Start a focused advisory or technical review conversation.",
+    contactIntent: "Consultancy",
+    ctaLabel: "Request a technical review",
+    sortOrder: 20,
+  },
+].map((service) => ({ ...service, showOnHome: true, status: "published" }));
+
 export const workExperience = [
   {
-    company: "Self-Employed",
+    company: "Self-employed",
+    previousCompanyNames: ["Self-Employed"],
     role: "Independent Professional",
     period: "Jan 2025 - Present",
     location: "Remote",
@@ -194,10 +212,10 @@ export const workExperience = [
     summary:
       "Built and enhanced enterprise metadata discovery, cataloguing, and lineage capabilities across more than 40 data technologies.",
     highlights: [
-      "Implemented Azure Synapse and ADF serverless SQL parsing and pipeline metadata extraction for end-to-end lineage.",
-      "Built cloud-agnostic Databricks scanners for Azure and AWS and expanded Snowflake streams, tags, and relationship cataloguing.",
       "Optimized H2 queries and Groovy/Python processing to reduce memory use and improve scanner execution by 10–20%.",
       "Remediated SQL-injection risks across 25+ scanners and migrated Jenkins delivery pipelines to GitLab CI/CD.",
+      "Implemented Azure Synapse and ADF serverless SQL parsing and pipeline metadata extraction for end-to-end lineage.",
+      "Built cloud-agnostic Databricks scanners for Azure and AWS and expanded Snowflake streams, tags, and relationship cataloguing.",
     ],
   },
   {
@@ -210,10 +228,10 @@ export const workExperience = [
     summary:
       "Engineered Walmart’s backend-heavy Unified Data Platform and cloud-migration tooling while leading delivery, quality, and team development initiatives.",
     highlights: [
-      "Built fault-tolerant, Notebook, and Airflow APIs for enterprise ETL orchestration and resolved critical production issues within strict SLAs.",
       "Integrated SonarQube security gates and expanded automated test coverage from 10% to 80%.",
-      "Designed and shipped a Kafka-based error processing platform MVP in eight weeks, then deployed it for additional clients.",
       "Led an eight-person team and created onboarding practices that reduced senior-resource training overhead by 90%.",
+      "Built fault-tolerant, Notebook, and Airflow APIs for enterprise ETL orchestration and resolved critical production issues within strict SLAs.",
+      "Designed and shipped a Kafka-based error processing platform MVP in eight weeks, then deployed it for additional clients.",
     ],
   },
   {
@@ -226,9 +244,9 @@ export const workExperience = [
     summary:
       "Built PCI-compliant, multi-tenant banking infrastructure supporting the complete prepaid-card and digital-payment lifecycle.",
     highlights: [
+      "Wrapped third-party SOAP payment capabilities with REST APIs, reducing client integration effort by 50%.",
       "Delivered six-plus Spring microservices for card activation, KYC, payments, fees, notifications, and customer preferences.",
       "Used AWS SQS and EC2 for resilient asynchronous processing and production delivery.",
-      "Wrapped third-party SOAP payment capabilities with REST APIs, reducing client integration effort by 50%.",
     ],
   },
   {
@@ -274,7 +292,7 @@ export const globals = {
     navigation: [
       { label: "About", url: "/about/" },
       { label: "Projects", url: "/projects/" },
-      { label: "Writings", url: "/blog/" },
+      { label: "Articles", url: "/blog/" },
       { label: "Testimonials", url: "/testimonials/" },
       { label: "Contact Me", url: "/contact/" },
       {
@@ -308,10 +326,12 @@ export const globals = {
       "Java + Python + React",
       "Data + AI Platforms",
     ].map((text) => ({ text })),
-    primaryCtaLabel: "Book a Call",
-    secondaryCtaLabel: "View Projects",
+    primaryCtaLabel: "Book a call",
+    secondaryCtaLabel: "See selected work",
+    primaryCtaNote:
+      "A focused call to discuss the problem, delivery constraints, and a practical next step.",
     postHeroLine:
-      "Latest writing, selected work, and practical ways to start a conversation are below.",
+      "Latest articles, selected work, and practical ways to start a conversation are below.",
     proofTitle: "Trusted by teams at",
     proofCompanies: [
       "Walmart",
@@ -327,11 +347,17 @@ export const globals = {
       { value: "25,000+", label: "customers on a lending platform" },
       { value: "10% → 80%", label: "test coverage on Walmart’s data platform" },
     ],
-    writingsTitle: "Latest writings",
-    writingsArchiveLabel: "All writings",
+    writingsTitle: "Articles",
+    writingsDescription:
+      "Practical notes on building reliable software, data platforms, and useful AI systems.",
+    writingsArchiveLabel: "All articles",
     writingsLimit: 2,
-    projectsTitle: "Selected engineering work",
-    projectsArchiveLabel: "Explore all case studies",
+    projectsTitle: "Selected work",
+    projectsArchiveLabel: "All case studies",
+    servicesTitle: "Ways to work together",
+    servicesDescription:
+      "Products, data platforms, and AI automation, from first architecture to production.",
+    servicesLimit: 4,
     featuredProjectSlugs: [
       "unified-data-platform",
       "data-landscape-scanner",
@@ -354,7 +380,6 @@ export const globals = {
     summary: [
       "I’m a Senior Full-Stack Engineer and Systems Architect with more than nine years of experience engineering high-throughput, data-heavy systems and intelligent automation pipelines.",
       "My work spans multi-tenant microservices, real-time synchronization, enterprise ETL, metadata lineage, fintech, cloud migration, mobile products, and AI-enabled workflows for organizations including Walmart and teams across Australia, Europe, the United States, France, and Saudi Arabia.",
-      "I work comfortably across Java and Spring Boot, Python and FastAPI, React and Next.js, event-driven platforms, cloud infrastructure, and the delivery practices needed to move complex systems safely into production.",
     ].map((text) => ({ text })),
     video: {
       eyebrow: "Meet the engineer",
@@ -368,6 +393,8 @@ export const globals = {
     },
     experienceTitle: "Work experience",
     strengthsTitle: "Core strengths",
+    // Resolved to the testimonial's id by seed-api.mjs.
+    featuredTestimonialName: "Pascal Inard",
     strengths: [
       {
         title: "Backend and system design",
@@ -490,14 +517,14 @@ export const globals = {
     sendAnotherLabel: "Send another message",
   },
   "archive-settings": {
-    writingsTitle: "Writings",
+    writingsTitle: "Articles",
     writingsDescription:
       "Practical notes on building reliable software, data platforms, and useful AI systems.",
     writingsSeoDescription:
       "Software engineering notes on backend systems, data platforms, cloud delivery, and practical AI work.",
     filterTitle: "Browse by topic",
     filterDescription:
-      "Choose a topic to narrow the archive while keeping the writing easy to scan.",
+      "Choose a topic to narrow the archive while keeping the articles easy to scan.",
     postsPerPage: 6,
     writingCtaLabel: "Need help with similar work?",
     readArticleLabel: "Read article",
@@ -1015,12 +1042,14 @@ const rawPosts = [
 const projectEnhancements = {
   "data-landscape-scanner": {
     projectRole: "Senior Software Engineer",
+    projectOutcome: "Supports 40+ enterprise data technologies",
     referenceCaseStudy: "rover.md",
     projectGalleryDirectory: "rover",
     projectGalleryCoverMatch: "Screenshot 2026-07-16",
   },
   "unified-data-platform": {
     projectRole: "Backend Engineer and Team Lead",
+    projectOutcome: "Test coverage raised from 10% to 80%",
     referenceCaseStudy: "udp.md",
     projectGalleryFiles: ["UDP.jpg"],
   },
@@ -1030,6 +1059,7 @@ const projectEnhancements = {
   },
   "capa-multi-vendor-warehouse": {
     projectRole: "Lead Full-Stack Engineer",
+    projectOutcome: "Warehouses sell to dealerships without leaving their own ERP",
     referenceCaseStudy: "capa.md",
     projectGalleryDirectory: "Capa",
     projectGalleryCoverMatch: "12.11.16",

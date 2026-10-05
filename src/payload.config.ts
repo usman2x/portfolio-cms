@@ -16,6 +16,7 @@ import sharp from 'sharp'
 import { Media } from '@/collections/Media'
 import { Posts } from '@/collections/Posts'
 import { QuoteRequests } from '@/collections/QuoteRequests'
+import { Services } from '@/collections/Services'
 import { Tags } from '@/collections/Tags'
 import { Testimonials } from '@/collections/Testimonials'
 import { Users } from '@/collections/Users'
@@ -60,7 +61,7 @@ export default buildConfig({
       importMapFile: path.resolve(dirname, 'app/(payload)/admin/importMap.js'),
     },
   },
-  collections: [Users, Tags, Media, Posts, WorkExperience, Testimonials, QuoteRequests],
+  collections: [Users, Tags, Media, Posts, WorkExperience, Testimonials, Services, QuoteRequests],
   endpoints: [rebuildUIEndpoint],
   globals: [SiteSettings, HomePage, AboutPage, TestimonialsPage, QuotePage, ArchiveSettings, ProjectTemplate, SystemPages],
   editor: lexicalEditor(),

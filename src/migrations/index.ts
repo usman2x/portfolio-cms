@@ -12,6 +12,10 @@ import * as migration_20260910_033012_external_writing_entries from './20260910_
 import * as migration_20260914_120000_generalize_contact_requests from './20260914_120000_generalize_contact_requests';
 import * as migration_20260914_220000_navigation_branding_and_archive_intros from './20260914_220000_navigation_branding_and_archive_intros';
 import * as migration_20260923_155913_home_proof_points from './20260923_155913_home_proof_points';
+import * as migration_20261005_050159_articles_rename_and_home_description from './20261005_050159_articles_rename_and_home_description';
+import * as migration_20261005_052030_archive_filter_copy_articles from './20261005_052030_archive_filter_copy_articles';
+import * as migration_20261005_064723_services_and_project_outcome from './20261005_064723_services_and_project_outcome';
+import * as migration_20261005_072721_about_featured_testimonial from './20261005_072721_about_featured_testimonial';
 
 export const migrations = [
   {
@@ -82,6 +86,26 @@ export const migrations = [
   {
     up: migration_20260923_155913_home_proof_points.up,
     down: migration_20260923_155913_home_proof_points.down,
-    name: '20260923_155913_home_proof_points'
+    name: '20260923_155913_home_proof_points',
+  },
+  {
+    up: migration_20261005_050159_articles_rename_and_home_description.up,
+    down: migration_20261005_050159_articles_rename_and_home_description.down,
+    name: '20261005_050159_articles_rename_and_home_description',
+  },
+  {
+    up: migration_20261005_052030_archive_filter_copy_articles.up,
+    down: migration_20261005_052030_archive_filter_copy_articles.down,
+    name: '20261005_052030_archive_filter_copy_articles',
+  },
+  {
+    up: migration_20261005_064723_services_and_project_outcome.up,
+    down: migration_20261005_064723_services_and_project_outcome.down,
+    name: '20261005_064723_services_and_project_outcome',
+  },
+  {
+    up: migration_20261005_072721_about_featured_testimonial.up,
+    down: migration_20261005_072721_about_featured_testimonial.down,
+    name: '20261005_072721_about_featured_testimonial'
   },
 ];

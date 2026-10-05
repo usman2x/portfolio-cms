@@ -57,7 +57,7 @@ export const Posts: CollectionConfig = {
         { label: 'External article', value: 'external' },
       ],
       admin: {
-        description: 'External articles appear in writing lists but open on the original platform and do not create a local detail page.',
+        description: 'External articles appear in article lists but open on the original platform and do not create a local detail page.',
       },
     },
     {
@@ -104,7 +104,7 @@ export const Posts: CollectionConfig = {
       editor: lexicalEditor(),
       admin: {
         condition: (_, siblingData) => siblingData?.publicationType !== 'external',
-        description: 'Required for native articles and project case studies. External writing entries link to their original publication instead.',
+        description: 'Required for native articles and project case studies. External article entries link to their original publication instead.',
       },
     },
     {
@@ -224,6 +224,14 @@ export const Posts: CollectionConfig = {
       type: 'text',
       admin: {
         description: 'Optional role shown on project previews and case studies.',
+      },
+    },
+    {
+      name: 'projectOutcome',
+      type: 'text',
+      maxLength: 120,
+      admin: {
+        description: 'Optional one-line result shown on homepage project cards, e.g. "Test coverage raised from 10% to 80%".',
       },
     },
     {

@@ -32,5 +32,11 @@ export const AboutPage: GlobalConfig = {
       ],
     },
     { name: 'strengthsTitle', type: 'text', required: true },
+    {
+      name: 'featuredTestimonial',
+      type: 'relationship',
+      relationTo: 'testimonials',
+      admin: { description: 'Optional quote shown on the About page. Leave empty to hide the section.' },
+    },
   ],
 }

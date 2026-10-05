@@ -7,9 +7,9 @@ export const ArchiveSettings: GlobalConfig = {
   access: publicGlobalAccess,
   hooks: publicGlobalHooks,
   fields: [
-    { name: 'writingsTitle', type: 'text', required: true },
-    { name: 'writingsDescription', type: 'textarea', required: true },
-    { name: 'writingsSeoDescription', type: 'textarea', required: true },
+    { name: 'writingsTitle', label: 'Articles title', type: 'text', required: true },
+    { name: 'writingsDescription', label: 'Articles description', type: 'textarea', required: true },
+    { name: 'writingsSeoDescription', label: 'Articles SEO description', type: 'textarea', required: true },
     { name: 'filterTitle', type: 'text', required: true },
     { name: 'filterDescription', type: 'textarea', required: true },
     { name: 'postsPerPage', type: 'number', min: 1, max: 50, defaultValue: 6 },

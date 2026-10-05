@@ -1,6 +1,6 @@
 import { readFile, readdir } from "node:fs/promises";
 import { extname } from "node:path";
-import { globals, posts, richText, tags, testimonials, workExperience } from "./seed-data.mjs";
+import { globals, posts, richText, services, tags, testimonials, workExperience } from "./seed-data.mjs";
 import { markdownRichText } from "./markdown-rich-text.mjs";
 
 const mode = process.argv.includes("--core") ? "core" : "dev";
@@ -254,6 +254,7 @@ for (const sample of selectedPosts) {
     readingTimeMinutes: sample.readingTimeMinutes,
     featured: sample.featured,
     projectRole: sample.projectRole,
+    projectOutcome: sample.projectOutcome,
     coverImage: galleryIDs[0] || undefined,
     projectGallery: galleryIDs,
   };
@@ -284,7 +285,12 @@ for (const sample of selectedPosts) {
 }
 
 for (const entry of workExperience) {
-  const existing = await findByCompany(entry.company);
+  // A renamed company is matched by its previous spelling so the seed updates instead of duplicating.
+  let existing = await findByCompany(entry.company);
+  for (const name of entry.previousCompanyNames || []) {
+    existing = existing || (await findByCompany(name));
+  }
+  delete entry.previousCompanyNames;
   const body = { ...entry, highlights: entry.highlights.map((text) => ({ text })) };
   const result = existing
     ? await request(`/api/work-experience/${existing.id}`, { method: "PATCH", token, body })
@@ -310,11 +316,37 @@ for (const testimonial of testimonials) {
   console.log(`${existing ? "updated" : "created"} testimonial: ${testimonial.name}`);
 }
 
+const findByTitle = async (collection, title) => {
+  const query = new URLSearchParams({ depth: "0", limit: "1", "where[title][equals]": title });
+  const result = requireSuccess(
+    await request(`/api/${collection}?${query.toString()}`, { token }),
+    `Find ${collection}/${title}`
+  );
+  return result.docs?.[0] || null;
+};
+
+for (const service of services) {
+  const existing = await findByTitle("services", service.title);
+  const body = { ...service, highlights: (service.highlights || []).map((text) => ({ text })) };
+  const result = existing
+    ? await request(`/api/services/${existing.id}`, { method: "PATCH", token, body })
+    : await request("/api/services", { method: "POST", token, body });
+  requireSuccess(result, `${existing ? "Update" : "Create"} service ${service.title}`);
+  console.log(`${existing ? "updated" : "created"} service: ${service.title}`);
+}
+
 for (const [slug, seed] of Object.entries(globals)) {
   const body = { ...seed };
   if (slug === "home-page") {
     body.featuredProjects = body.featuredProjectSlugs.map((projectSlug) => postIDs.get(projectSlug)).filter(Boolean);
     delete body.featuredProjectSlugs;
+  }
+  if (slug === "about-page") {
+    const featured = body.featuredTestimonialName
+      ? await findByName("testimonials", body.featuredTestimonialName)
+      : null;
+    body.featuredTestimonial = featured?.id || null;
+    delete body.featuredTestimonialName;
   }
   requireSuccess(await request(`/api/globals/${slug}`, { method: "POST", token, body }), `Update global ${slug}`);
   console.log(`updated global: ${slug}`);
