@@ -3,6 +3,7 @@
 ## Start Here
 
 - Read `README.md` and `docs/LOCAL_DEVELOPMENT.md` before running the project for the first time.
+- `docs/CONTENT_MODEL.md` describes the current schema, access rules, hooks, and endpoints; keep it in step with schema changes.
 - Use `.agents/skills/develop-portfolio-cms/SKILL.md` for Payload collections, globals, fields, hooks, endpoints, access control, migrations, seeds, PostgreSQL, media, or public API work.
 - For data consumed by the website, inspect `../portfolio-ui/src/lib/cms.js` and the consuming page or component. Update both repositories when the public contract changes.
 - Use only a disposable local database for development and verification unless the user explicitly authorizes another environment.

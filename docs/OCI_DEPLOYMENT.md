@@ -92,6 +92,10 @@ Caddy publishes the service on `https://cms.themuhammadusman.com`; see the UI re
 
 ## Updates
 
+Production normally updates through the UI repository's `npm run deploy:oci`, which runs the steps
+below for the CMS and then rebuilds the UI. It deploys `main`; see "Release flow" in the UI
+repository's runbook. The manual CMS-only equivalent:
+
 ```bash
 cd /srv/portfolio/portfolio-cms
 git pull --ff-only origin main
@@ -120,7 +124,7 @@ Restart `portfolio-cms` after changing `.env`. Publishing posts, testimonials, w
 
 ## Optional canonical seed
 
-`npm run seed:core` idempotently loads permanent site content: case studies, project media, required tags, testimonials, work experience, and site globals. `npm run seed:dev` loads the same content plus test writings and should not be used in production.
+`npm run seed:core` idempotently loads permanent site content: case studies, project media, required tags, services, testimonials, work experience, and site globals. `npm run seed:dev` loads the same content plus test writings and should not be used in production.
 
 Seeding is intentionally deferred in the initial OCI deployment. The schema migration and service deployment are complete without it. When content initialization is approved, run the seed against `http://127.0.0.1:3001`, then rebuild the static UI.
 
@@ -140,7 +144,10 @@ unset SEED_ADMIN_EMAIL SEED_ADMIN_PASSWORD CMS_API_URL
 
 ## Remaining production steps
 
-1. Populate the Home Page proof points (title, companies, stats) and any other empty globals in Payload Admin.
+1. Enter the content added by the 2026-10-05 release in Payload Admin (sections stay hidden until
+   filled): Services records and Home Page `servicesTitle`/`servicesDescription`; `projectOutcome`
+   on featured projects; Home Page `primaryCtaNote`; About Page `featuredTestimonial`; remove the
+   third About summary paragraph; order each Work Experience role's measurable highlights first.
 2. Confirm each save triggers a successful UI rebuild (see the UI runbook's rebuild tests).
 
 Administer Payload only over `https://cms.themuhammadusman.com/admin`, never over plain HTTP. If HTTPS is unavailable, use an SSH tunnel instead:
@@ -151,26 +158,10 @@ ssh -L 3001:127.0.0.1:3001 -i <private-key> ubuntu@<PUBLIC_IP>
 
 Then open `http://localhost:3001/admin` on the local machine. Admin cookie auth only accepts the `NEXT_PUBLIC_SERVER_URL` origin, so temporarily add `CSRF_ALLOWED_ORIGINS=http://localhost:3001` to `.env` and restart `portfolio-cms` while using the tunnel; remove it afterwards.
 
-## Moving an existing IP deployment to the domain
+## Admin sessions
 
-On a VM that still serves the CMS on `http://<PUBLIC_IP>:8080`, follow the cutover steps in the UI repository's OCI runbook. The CMS part is:
-
-```bash
-cd /srv/portfolio/portfolio-cms
-cp -p .env .env.pre-domain-$(date +%Y%m%d)
-nano .env   # set NEXT_PUBLIC_SERVER_URL, UI_PUBLIC_URL, QUOTE_ALLOWED_ORIGINS as above
-nvm use 22
-set -a
-source .env
-set +a
-npm run build
-sudo systemctl restart portfolio-cms
-curl -I --resolve cms.themuhammadusman.com:443:127.0.0.1 https://cms.themuhammadusman.com/admin
-```
-
-Retire the IP entry point only after the HTTPS admin login works. On a VM without other tenants, remove the `:8080` listener from Caddy, UFW, iptables, and OCI. On the shared production VM, keep `:8080` for rem-labs and replace only its portfolio catch-all with `respond 404`. Remove `http://<PUBLIC_IP>` from `QUOTE_ALLOWED_ORIGINS` and restart `portfolio-cms`.
-
-After deploying the auth hardening, existing admin sessions end: the auth cookie is now `portfolio-token`, so every administrator must log in again.
+The auth cookie is `portfolio-token`. Changing its name or the CMS hostname ends existing admin
+sessions, so every administrator must log in again.
 
 ## FAQ
 

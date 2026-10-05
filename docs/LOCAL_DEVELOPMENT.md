@@ -45,10 +45,10 @@ Open `http://localhost:3001/admin` and sign in with `SEED_ADMIN_EMAIL` and `SEED
 ## Seed choices
 
 - `npm run seed:core`: permanent site content only
-- `npm run seed:dev`: permanent content plus development writings
+- `npm run seed:dev`: permanent content plus development articles
 - `npm run seed:core -- --refresh-media`: rebuild stored media variants for existing seeded files
 
-Seeds update records by stable identifiers and are safe to repeat locally. Remote targets are rejected unless `ALLOW_REMOTE_SEED=true` is deliberately set. Never use that override casually.
+Seeds upsert records by stable identifiers (slug, name, company or title) and are safe to repeat locally, but they overwrite every field they define on matched records and globals, so local admin edits to those records are replaced. They never delete. A renamed record is matched through `previousCompanyNames` (work experience); otherwise renaming a matching key in the admin makes the seed create a new record. Remote targets are rejected unless `ALLOW_REMOTE_SEED=true` is deliberately set. Never use that override casually.
 
 ## Schema workflow
 

@@ -1,39 +1,38 @@
 # portfolio-cms
 
-Payload CMS repository for managing blog content used by the portfolio site.
+Payload CMS for the portfolio site: all page copy, articles, case studies, services,
+testimonials, work experience, media and contact submissions. The statically exported UI
+(`../portfolio-ui`) reads it over REST at build time, and published changes trigger a UI rebuild.
 
 ## Stack
 
-- Payload CMS + Next.js runtime
-- PostgreSQL (`@payloadcms/db-postgres`)
+- Payload CMS 3 on Next.js 16
+- PostgreSQL (`@payloadcms/db-postgres`), media binaries in `cms.media_blobs`
 - TypeScript
 
-## Implemented Model
+## Model
 
-- `users` (auth-enabled, admin-only)
-- `tags`
-- `media` (upload-enabled + metadata)
-- `posts` (draft/publish workflow + SEO fields)
-- `media_blobs` SQL table for binary storage of original and generated image variants
+- Collections: `posts` (articles and `case-study` projects, drafts and versions), `services`,
+  `testimonials`, `work-experience`, `tags`, `media`, `quote-requests` (contact submissions),
+  `users` (admin auth)
+- Globals: `site-settings`, `home-page`, `about-page`, `testimonials-page`, `quote-page`
+  (Contact page), `archive-settings`, `project-template`, `system-pages`
+
+Fields, access rules, hooks and endpoints: [docs/CONTENT_MODEL.md](docs/CONTENT_MODEL.md).
 
 ## Access Summary
 
-- Admin-only CRUD for `users`, `media`, `posts`, and writes on `tags`
-- Public read on `tags`
-- Public read on `posts` limited to `status = published`
-- Public read on `media` limited to `isPublic = true`
+- Writes are admin-only (active `admin` users); the first administrator can self-register.
+- Public reads: published posts, services, testimonials and work experience; all tags and globals;
+  media with `isPublic = true`. Users and contact requests are never public.
 
 ## Key Behaviors
 
-- First admin bootstrap allowed if no admin exists yet
-- `isActive = false` admins are blocked from login
-- Slugs auto-generated from title/name
-- Published posts enforce required SEO + publish fields
-- Slug mutation is blocked after publish
-- `publishedAt` auto-set on first publish
-- Media used by published posts cannot be deleted
-- Tags in use by posts cannot be deleted
-- Authors referenced by posts cannot be deleted
+- Slugs are generated from titles and locked after publish; `publishedAt` is set on first publish
+- Published posts require their SEO fields
+- Media used by published posts, tags in use, authors referenced by posts and the last admin
+  cannot be deleted
+- Published content changes call `UI_DEPLOY_WEBHOOK_URL` to rebuild the static UI
 
 ## Local Setup
 
@@ -61,7 +60,7 @@ For a local API-backed sample dataset, run the CMS on port `3001` and execute:
 npm run seed:dev
 ```
 
-The seed script logs in through `/api/users/login`, creates the first administrator through `/api/users/first-register` when necessary, and creates or updates tags and published posts through the public REST routes. It is idempotent by slug and refuses non-local targets unless `ALLOW_REMOTE_SEED=true` is explicitly set.
+The seed script logs in through `/api/users/login`, creates the first administrator through `/api/users/first-register` when necessary, and upserts the baseline through the REST routes: records are matched by slug, name, company or title and overwritten with the seed values, globals receive every field the seed defines, and nothing is deleted. It refuses non-local targets unless `ALLOW_REMOTE_SEED=true` is explicitly set.
 
 After seeding, open `http://localhost:3001/admin` and sign in with the seed credentials from `.env`.
 
@@ -121,7 +120,7 @@ Rotating logs:
 - After creating the first administrator in a new environment, run `npm run seed:core` to idempotently install or update permanent site content: project case studies, their tags and media, testimonials, work experience, and site globals.
 - The core seed also uploads every available project image to Media, stores the original plus generated thumbnail variants in PostgreSQL, and attaches the ordered gallery to its project.
 - Use `npm run seed:core -- --refresh-media` only when existing seeded files need their generated variants rebuilt.
-- Run `npm run seed:dev` to load the same permanent site content plus test writings. Do not run the development seed in production.
+- Run `npm run seed:dev` to load the same permanent site content plus test articles. Do not run the development seed in production.
 - Database migrations remain schema-only; editorial baseline content is managed by explicit seed commands.
 - `npm run migrate:init` is only for generating a new migration during schema development.
 - Use `npm run migrate:create <name>` after collection/config changes.
@@ -193,15 +192,11 @@ The optional runtime `UI_DEPLOY_WEBHOOK_URL` points to the OCI loopback rebuild 
 
 ## Public REST Endpoints
 
-- `GET /api/posts` (returns published posts to public users)
-- `GET /api/posts/:id` (returns a post only when publicly readable)
+- `GET /api/posts`, `/api/services`, `/api/testimonials`, `/api/work-experience` (published only)
 - `GET /api/tags`
-- `GET /api/media/:id` (Payload REST document endpoint)
-- `GET /api/media/file/:filename` (binary media from Postgres blobs)
-
-Notes:
-
-- `GET /api/media` and `GET /api/media/:id` are served by Payload REST.
-- `GET /api/media/file/:filename` is custom and backed by `cms.media_blobs`.
+- `GET /api/globals/<slug>`
+- `GET /api/media/:id` and `GET /api/media/file/:filename` (public media; binaries from `cms.media_blobs`)
+- `POST /api/quote-requests/submit` (contact wizard; origin-restricted, validated, rate-limited)
+- `POST /api/rebuild-ui` (admins only; manual UI rebuild)
 
 The API path is handled by Payload's generated REST routes under Next.js App Router.
