@@ -101,9 +101,10 @@ export const testimonials = [
   {
     name: "Clinton Jones",
     role: "Product Leader in Data & Metadata Management",
-    relationship: "colleague",
+    relationship: "manager",
     recommendationDate: "2024-10-19T00:00:00.000Z",
-    quote: "I have known Usman for around two years and seen him work well in a fully remote role as a software developer/engineer. His hard work with the team has been much appreciated.\n\nHe is able to deliver technical solutions based on a combination of functional and technical requirements and deliver software outcomes in areas where he feels comfortable. Where he lacks knowledge he will research and acquire the knowledge needed to grow his understanding of the problem space.\n\nUsman is capable and enthusiastic and able to work easily with all strata of developers. I would gladly have him as part of a development team again if that was possible.\n\nHis role has been technical in natures and he is committed and accomplished enough and self-motivated to do his best.\n\nAny organization and role that he feels confident in being able to join and execute on should consider his tremendous potential to add value.",
+    quote:
+      "He is able to deliver technical solutions based on a combination of functional and technical requirements and deliver software outcomes in areas where he feels comfortable. Where he lacks knowledge he will research and acquire the knowledge needed to grow his understanding of the problem space.",
     featured: true,
     sortOrder: 10,
   },
