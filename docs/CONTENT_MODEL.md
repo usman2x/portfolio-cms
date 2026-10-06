@@ -119,5 +119,8 @@ requested.
   company or title and overwrites every field it defines, and never deletes. Renamed records can be
   matched by `previousCompanyNames`; the About featured testimonial is set by name
   (`featuredTestimonialName`). Remote seeding is refused unless `ALLOW_REMOTE_SEED=true`.
+- Articles (posts without the `case-study` tag) are not seed baseline. Local development articles
+  live in `scripts/seed-articles.local.mjs` and load only through `npm run seed:dev`, which is
+  local-only with no override; production articles are written in Payload Admin.
 
 Deferred cleanup (unused fields, legacy names, seed pruning): `../portfolio-ui/docs/TODO.md`.

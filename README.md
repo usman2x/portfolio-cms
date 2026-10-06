@@ -120,7 +120,8 @@ Rotating logs:
 - After creating the first administrator in a new environment, run `npm run seed:core` to idempotently install or update permanent site content: project case studies, their tags and media, testimonials, work experience, and site globals.
 - The core seed also uploads every available project image to Media, stores the original plus generated thumbnail variants in PostgreSQL, and attaches the ordered gallery to its project.
 - Use `npm run seed:core -- --refresh-media` only when existing seeded files need their generated variants rebuilt.
-- Run `npm run seed:dev` to load the same permanent site content plus test articles. Do not run the development seed in production.
+- Articles are never part of the production seed. Write production articles in Payload Admin.
+- Run `npm run seed:dev` locally to load the same permanent site content plus development articles from `scripts/seed-articles.local.mjs`. It refuses any non-local target, a non-local `NEXT_PUBLIC_SERVER_URL` and `NODE_ENV=production`, and `ALLOW_REMOTE_SEED` does not override that.
 - Database migrations remain schema-only; editorial baseline content is managed by explicit seed commands.
 - `npm run migrate:init` is only for generating a new migration during schema development.
 - Use `npm run migrate:create <name>` after collection/config changes.

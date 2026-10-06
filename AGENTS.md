@@ -13,7 +13,7 @@
 - Preserve admin-only writes and narrow public-read rules unless a requirement explicitly changes them.
 - Public posts must be published; public media must have `isPublic = true`.
 - Preserve protections around published slugs, referenced media, referenced tags, and referenced authors.
-- Treat `scripts/seed-data.mjs` and the files under `scripts/core-content/` as the permanent content baseline.
+- Treat `scripts/seed-data.mjs` and the files under `scripts/core-content/` as the permanent content baseline. Articles are not part of it: development articles live in `scripts/seed-articles.local.mjs`, load only through `seed:dev`, and must never reach production.
 - Keep seeds idempotent and refuse remote seeding unless the user explicitly requests it.
 - Never expose credentials or private content through public fields, logs, fixtures, or `NEXT_PUBLIC_*` variables.
 

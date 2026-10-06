@@ -35,7 +35,7 @@ Evolve the CMS without weakening access controls, losing editorial data, or sile
    - For a data-only change, `migrate:create` asks "No schema changes detected… create a blank migration?"; answer yes (`yes | npm run migrate:create -- <name>`) and hand-write the SQL.
    - Data migrations that change copy must only update rows still holding the previous default (`UPDATE … WHERE field = '<old default>'`) so editor customisations survive, and must have a matching `down`.
    - Back up the local database (`pg_dump -Fc`) before applying migrations.
-5. Update `scripts/seed-data.mjs`, `scripts/seed-api.mjs`, and core-content assets when the field is part of the permanent site baseline.
+5. Update `scripts/seed-data.mjs`, `scripts/seed-api.mjs`, and core-content assets when the field is part of the permanent site baseline. Articles are not baseline: put development articles in `scripts/seed-articles.local.mjs` (loaded only by local-only `seed:dev`), never in `seed-data.mjs`.
 6. Keep seed operations idempotent by stable identifiers (slug, name, company, title). The seed overwrites every field it defines on matched records and globals and never deletes, so:
    - renaming a matching key needs an alias (see `previousCompanyNames` for work experience) or the seed creates a duplicate;
    - relationships are resolved in `seed-api.mjs` from a stable key (see `featuredTestimonialName` on `about-page`);

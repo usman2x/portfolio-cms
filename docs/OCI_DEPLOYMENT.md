@@ -124,7 +124,7 @@ Restart `portfolio-cms` after changing `.env`. Publishing posts, testimonials, w
 
 ## Optional canonical seed
 
-`npm run seed:core` idempotently loads permanent site content: case studies, project media, required tags, services, testimonials, work experience, and site globals. `npm run seed:dev` loads the same content plus test writings and should not be used in production.
+`npm run seed:core` idempotently loads permanent site content: case studies, project media, required tags, services, testimonials, work experience, and site globals. It never includes articles; write production articles in Payload Admin. `npm run seed:dev` adds local development articles and refuses to run here: it rejects a non-local `NEXT_PUBLIC_SERVER_URL` or `NODE_ENV=production`, and `ALLOW_REMOTE_SEED` does not override that.
 
 Seeding is intentionally deferred in the initial OCI deployment. The schema migration and service deployment are complete without it. When content initialization is approved, run the seed against `http://127.0.0.1:3001`, then rebuild the static UI.
 

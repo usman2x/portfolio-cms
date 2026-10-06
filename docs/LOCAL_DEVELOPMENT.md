@@ -44,11 +44,13 @@ Open `http://localhost:3001/admin` and sign in with `SEED_ADMIN_EMAIL` and `SEED
 
 ## Seed choices
 
-- `npm run seed:core`: permanent site content only
-- `npm run seed:dev`: permanent content plus development articles
+- `npm run seed:core`: permanent site content only (case studies, tags, media, services, testimonials, work experience, globals); no articles
+- `npm run seed:dev`: permanent content plus the development articles in `scripts/seed-articles.local.mjs`; local only
 - `npm run seed:core -- --refresh-media`: rebuild stored media variants for existing seeded files
 
 Seeds upsert records by stable identifiers (slug, name, company or title) and are safe to repeat locally, but they overwrite every field they define on matched records and globals, so local admin edits to those records are replaced. They never delete. A renamed record is matched through `previousCompanyNames` (work experience); otherwise renaming a matching key in the admin makes the seed create a new record. Remote targets are rejected unless `ALLOW_REMOTE_SEED=true` is deliberately set. Never use that override casually.
+
+Articles are local fixtures, not site content. `seed:core` never loads `scripts/seed-articles.local.mjs`, and `seed:dev` refuses to run when `CMS_API_URL` or `NEXT_PUBLIC_SERVER_URL` is not local or `NODE_ENV=production`, with no override. That covers the production VM, where the CMS also listens on `127.0.0.1`. Production articles are written in Payload Admin.
 
 ## Schema workflow
 

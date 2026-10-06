@@ -5,9 +5,10 @@ import { markdownRichText } from "./markdown-rich-text.mjs";
 
 const mode = process.argv.includes("--core") ? "core" : "dev";
 const refreshMedia = process.argv.includes("--refresh-media");
+// Articles are development fixtures: they live in a separate file that core mode never loads.
 const selectedPosts = mode === "core"
-  ? posts.filter((post) => post.tagSlugs.includes("case-study"))
-  : posts;
+  ? posts
+  : [...posts, ...(await import("./seed-articles.local.mjs")).articles];
 const selectedTagSlugs = new Set(selectedPosts.flatMap((post) => post.tagSlugs));
 const selectedTags = tags.filter((tag) => selectedTagSlugs.has(tag.slug));
 
@@ -29,10 +30,21 @@ if (!email || !password) {
   throw new Error("SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD are required.");
 }
 
-const target = new URL(baseUrl);
-const isLocalTarget = ["127.0.0.1", "::1", "localhost"].includes(
-  target.hostname
-);
+const isLocalUrl = (url) =>
+  ["127.0.0.1", "[::1]", "localhost"].includes(new URL(url).hostname);
+const isLocalTarget = isLocalUrl(baseUrl);
+// No override: on the production VM the CMS is also 127.0.0.1, so its public serverURL and
+// NODE_ENV are checked too.
+if (
+  mode === "dev" &&
+  (!isLocalTarget ||
+    process.env.NODE_ENV === "production" ||
+    (process.env.NEXT_PUBLIC_SERVER_URL && !isLocalUrl(process.env.NEXT_PUBLIC_SERVER_URL)))
+) {
+  throw new Error(
+    "Refusing to seed development articles outside local development. Use seed:core for other environments."
+  );
+}
 if (!isLocalTarget && process.env.ALLOW_REMOTE_SEED !== "true") {
   throw new Error(
     "Refusing to seed a non-local CMS. Set ALLOW_REMOTE_SEED=true to override."
