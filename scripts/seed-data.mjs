@@ -600,8 +600,8 @@ export const globals = {
     nextLabel: "Next project",
   },
   "system-pages": {
-    notFoundTitle: "404: Not Found",
-    notFoundMessage: "You just hit a route that doesn’t exist.",
+    notFoundTitle: "This page doesn’t exist",
+    notFoundMessage: "It may have moved, or the link may be mistyped.",
     thankYouTitle: "Thank you",
     thankYouMessage:
       "Your message has been received. I’ll get back to you soon.",
