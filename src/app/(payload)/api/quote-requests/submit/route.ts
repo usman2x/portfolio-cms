@@ -67,7 +67,9 @@ export const POST = async (request: Request): Promise<Response> => {
 
   try {
     const body = (await request.json()) as Record<string, unknown>;
-    if (body.website || body.fax_number) {
+    // Spam trap from the contact form. Only this field counts: the old `fax_number` trap was
+    // filled by browser autofill and discarded real requests.
+    if (body.hp_trap_7f3k) {
       return Response.json({ ok: true }, { headers, status: 201 });
     }
 
