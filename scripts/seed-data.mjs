@@ -477,7 +477,7 @@ export const globals = {
     eyebrow: "Testimonials",
     title: "What collaborators say about working with me.",
     description:
-      "Direct recommendations from managers and engineering colleagues across enterprise platforms, product teams, and consulting engagements.",
+      "Recommendations on LinkedIn from managers and engineering colleagues across enterprise platforms, product teams, and consulting engagements.",
   },
   "quote-page": {
     seoTitle: "Contact Me",
