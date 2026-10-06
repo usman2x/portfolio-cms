@@ -23,7 +23,7 @@ Processing live audio data requires low-latency, bi-directional communication ch
 * Java and SpringBoot
 
 ## Links
-1. Demo: [https://drive.google.com/file/d/19rYpThcoqBSdHyA163a_nMHDv8luDS2V/view?usp=drive_link](https://drive.google.com/file/d/1_RLgkrZRlkvh_dnps7LcfZ7FjPr3hKKP/view?usp=drive_link)
+1. Demo: [https://drive.google.com/file/d/19rYpThcoqBSdHyA163a_nMHDv8luDS2V/view?usp=drive_link](https://drive.google.com/file/d/19rYpThcoqBSdHyA163a_nMHDv8luDS2V/view?usp=drive_link)
 2. https://github.com/usman2x/nemo_asr_websocket
 3. https://github.com/usman2x/websocket-poc
 4. https://github.com/usman2x/audio-transcription-app
