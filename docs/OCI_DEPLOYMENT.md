@@ -94,7 +94,10 @@ Caddy publishes the service on `https://cms.themuhammadusman.com`; see the UI re
 
 Production normally updates through the UI repository's `npm run deploy:oci`, which runs the steps
 below for the CMS and then rebuilds the UI. It deploys `main`; see "Release flow" in the UI
-repository's runbook. The manual CMS-only equivalent:
+repository's runbook. Back up the database first: `deploy:oci` runs migrations without taking a
+dump. VM access, GitHub deploy keys, the pre-deploy backup and rollback are in "Access and
+prerequisites" and "Deployment checklist" in the UI repository's runbook. The manual CMS-only
+equivalent:
 
 ```bash
 cd /srv/portfolio/portfolio-cms
