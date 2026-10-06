@@ -101,7 +101,7 @@ All globals are publicly readable, admin-writable, and trigger the UI rebuild on
 | --- | --- | --- |
 | `GET /api/<collection>`, `GET /api/globals/<slug>` | per access model | Payload REST |
 | `GET /api/media/file/<filename>` | public media only | Binary media from `media_blobs` |
-| `POST /api/quote-requests/submit` | public, origin-restricted | Contact wizard; validates intent-specific fields, honeypot, rate limit |
+| `POST /api/quote-requests/submit` | public, origin-restricted | Contact wizard; validates intent-specific fields and rate limit; a filled honeypot (`hp_trap_7f3k`) stores the request as `spam` instead of `new`; logs each outcome as `[contact] …` (no personal data) |
 | `POST /api/rebuild-ui` | admin | Manual UI rebuild (dashboard **Rebuild UI** button) |
 
 ## UI rebuild webhook

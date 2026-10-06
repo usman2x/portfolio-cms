@@ -67,11 +67,11 @@ export const POST = async (request: Request): Promise<Response> => {
 
   try {
     const body = (await request.json()) as Record<string, unknown>;
-    // Spam trap from the contact form. Only this field counts: the old `fax_number` trap was
-    // filled by browser autofill and discarded real requests.
-    if (body.hp_trap_7f3k) {
-      return Response.json({ ok: true }, { headers, status: 201 });
-    }
+    // Spam trap from the contact form. A filled trap no longer discards the request: browser
+    // autofill has filled traps before, so a valid submission is kept with status "spam" for
+    // review instead of being lost.
+    const trapped =
+      typeof body.hp_trap_7f3k === "string" && body.hp_trap_7f3k.trim() !== "";
 
     const payload = await getPayload({ config });
     const quotePage = await payload.findGlobal({
@@ -95,20 +95,26 @@ export const POST = async (request: Request): Promise<Response> => {
       budget: values(quotePage.budgets),
       preferredContact: values(quotePage.contactMethods),
     });
-    await payload.create({
+    const created = await payload.create({
       collection: "quote-requests",
       data: {
         ...input,
-        status: "new",
+        status: trapped ? "spam" : "new",
         userAgent: (request.headers.get("user-agent") || "").slice(0, 500),
       },
       overrideAccess: true,
     });
+    // Outcome only, no personal data.
+    console.info(
+      `[contact] stored request ${created.id} as ${trapped ? "spam (trap filled)" : "new"}; ` +
+        `intent=${input.helpType}; reply=${input.wantsReply}`,
+    );
 
     return Response.json({ ok: true }, { headers, status: 201 });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unable to submit your request.";
+    console.warn(`[contact] rejected submission: ${message}`);
     return Response.json({ message }, { headers, status: 400 });
   }
 };
