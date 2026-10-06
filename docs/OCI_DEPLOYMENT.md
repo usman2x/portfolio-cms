@@ -180,6 +180,9 @@ sessions, so every administrator must log in again.
 
 - Service logs: `sudo journalctl -u portfolio-cms -n 100 --no-pager`
 - Application logs: `tail -n 100 logs/current.log`
+- Contact submissions: `grep "\[contact\]" logs/current.log` shows each outcome (stored as `new`,
+  stored as `spam` because the honeypot was filled, or `rejected` with the validation reason),
+  without personal data. A request missing from Payload Admin should appear here.
 - Database: `npm run db:check`
 - Migration state: `npm run migrate:status`; every expected migration should show `Ran: Yes`.
 - Port listener: `sudo ss -ltnp | grep ':3001'`
