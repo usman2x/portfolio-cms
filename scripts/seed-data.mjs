@@ -336,7 +336,7 @@ export const globals = {
     portraitPath: "/images/usman.jpg",
     portraitAlt: "Portrait of Muhammad Usman",
     resumeLink:
-      "https://drive.google.com/file/d/1HYaTYlszhcU58GmjxboLlOkTfHRwQEoA/view?usp=sharing",
+      "https://drive.google.com/file/d/1agJHhaBt9myqwyuthb_Pvj_bHcZ08GFg/view?usp=sharing",
     email: "hafizusman313@hotmail.com",
     phone: "+923217995855",
     meetingLink: "https://calendar.app.google/baTVjxZDoBMnjdip9",
