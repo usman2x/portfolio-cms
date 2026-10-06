@@ -166,6 +166,7 @@ export const testimonials = [
 ].map((testimonial) => ({
   ...testimonial,
   sourceLabel: "LinkedIn recommendation",
+  sourceUrl: "https://www.linkedin.com/in/usman313/details/recommendations",
   status: "published",
 }));
 
