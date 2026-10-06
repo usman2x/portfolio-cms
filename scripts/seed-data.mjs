@@ -590,7 +590,7 @@ export const globals = {
       "Selected software engineering, data platform, cloud, and product delivery projects by Muhammad Usman.",
   },
   "project-template": {
-    backLabel: "All projects",
+    backLabel: "Back to all projects",
     stackLabel: "Tech stack",
     linkLabel: "Project link",
     defaultLinkLabel: "View external reference",
