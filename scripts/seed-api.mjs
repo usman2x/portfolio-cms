@@ -250,11 +250,13 @@ for (const tag of selectedTags) {
 const postIDs = new Map();
 for (const sample of selectedPosts) {
   const existing = await findBySlug("posts", sample.slug);
-  const gallery = sample.tagSlugs.includes("case-study") ? await uploadProjectGallery(sample) : [];
+  const isProject = sample.tagSlugs.includes("case-study");
+  const gallery = isProject ? await uploadProjectGallery(sample) : [];
   const galleryIDs = gallery.map((media) => media.id).filter(Boolean);
   const body = {
     title: sample.title,
     slug: sample.slug,
+    kind: isProject ? "project" : "article",
     excerpt: sample.excerpt,
     content: await postContent(sample),
     author: authorID,

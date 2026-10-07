@@ -1,12 +1,13 @@
+import { ValidationError } from 'payload'
+
 type PartialPost = {
   content?: unknown
   externalPlatform?: 'medium' | 'linkedin' | 'other' | null
   externalUrl?: string | null
   excerpt?: string
+  kind?: 'article' | 'project'
   publishedAt?: string | null
   publicationType?: 'native' | 'external'
-  seoDescription?: string
-  seoTitle?: string
   slug?: string
   status?: 'draft' | 'published'
   title?: string
@@ -27,6 +28,12 @@ export const getNextPostValue = <K extends keyof PartialPost>(
   return originalDoc?.[key]
 }
 
+// Thrown as a ValidationError so the admin highlights each field instead of the generic
+// "Something went wrong" that Payload shows for plain errors in production.
+export const throwFieldErrors = (errors: Array<{ message: string; path: string }>): never => {
+  throw new ValidationError({ collection: 'posts', errors })
+}
+
 export const assertPublishRequirements = (
   data: PartialPost,
   originalDoc?: PartialPost | null,
@@ -36,32 +43,33 @@ export const assertPublishRequirements = (
     return
   }
 
-  const missing: string[] = []
-  const title = getNextPostValue(data, originalDoc, 'title')
-  const slug = getNextPostValue(data, originalDoc, 'slug')
-  const excerpt = getNextPostValue(data, originalDoc, 'excerpt')
-  const content = getNextPostValue(data, originalDoc, 'content')
-  const publicationType = getNextPostValue(data, originalDoc, 'publicationType') || 'native'
-  const externalPlatform = getNextPostValue(data, originalDoc, 'externalPlatform')
-  const externalUrl = getNextPostValue(data, originalDoc, 'externalUrl')
-  const seoTitle = getNextPostValue(data, originalDoc, 'seoTitle')
-  const seoDescription = getNextPostValue(data, originalDoc, 'seoDescription')
-  const publishedAt = getNextPostValue(data, originalDoc, 'publishedAt')
+  const errors: Array<{ message: string; path: string }> = []
+  const require = (path: keyof PartialPost, message: string, blank: boolean) => {
+    if (blank) errors.push({ message, path })
+  }
 
-  if (isBlank(title)) missing.push('title')
-  if (isBlank(slug)) missing.push('slug')
-  if (isBlank(excerpt)) missing.push('excerpt')
+  const kind = getNextPostValue(data, originalDoc, 'kind') || 'article'
+  const publicationType =
+    kind === 'project' ? 'native' : getNextPostValue(data, originalDoc, 'publicationType') || 'native'
+
+  require('title', 'Add a title before publishing.', isBlank(getNextPostValue(data, originalDoc, 'title')))
+  require('slug', 'Add a slug before publishing.', isBlank(getNextPostValue(data, originalDoc, 'slug')))
+  require('excerpt', 'Add an excerpt before publishing.', isBlank(getNextPostValue(data, originalDoc, 'excerpt')))
   if (publicationType === 'external') {
-    if (isBlank(externalPlatform)) missing.push('externalPlatform')
-    if (isBlank(externalUrl)) missing.push('externalUrl')
-  } else if (!content) {
-    missing.push('content')
+    require(
+      'externalUrl',
+      'Add the original article URL before publishing.',
+      isBlank(getNextPostValue(data, originalDoc, 'externalUrl')),
+    )
+    require(
+      'externalPlatform',
+      'Choose where the article is published (Medium, LinkedIn or Other).',
+      isBlank(getNextPostValue(data, originalDoc, 'externalPlatform')),
+    )
+  } else {
+    require('content', 'Add content before publishing.', !getNextPostValue(data, originalDoc, 'content'))
   }
-  if (isBlank(seoTitle)) missing.push('seoTitle')
-  if (isBlank(seoDescription)) missing.push('seoDescription')
-  if (!publishedAt) missing.push('publishedAt')
+  require('publishedAt', 'Set a publish date.', !getNextPostValue(data, originalDoc, 'publishedAt'))
 
-  if (missing.length > 0) {
-    throw new Error(`Cannot publish post. Missing required fields: ${missing.join(', ')}`)
-  }
+  if (errors.length > 0) throwFieldErrors(errors)
 }

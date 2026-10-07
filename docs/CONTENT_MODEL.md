@@ -25,20 +25,31 @@ Source of truth: `src/collections/`, `src/globals/`, `src/hooks/`, `src/access/i
 
 ## Collections
 
-### Posts (`posts`)
+### Posts (`posts`) — "Articles" and "Projects" in the admin
 
-Articles and project case studies. Versions with drafts; `status` (draft/published).
+Articles and project case studies share one collection. `kind` (`article`/`project`) splits them:
+the admin nav shows separate **Articles** and **Projects** links (`components/ContentNav`, which
+hides the collection's own link), the list has matching tabs and "New article/project" buttons
+(`components/PostKindTabs`), and `?kind=` on the create URL preselects the kind. `kind` replaced
+the `case-study` tag (migration `20261007_063707_post_kind` backfilled it); the UI still falls back
+to the tag when `kind` is missing. Versions with drafts; `status` (draft/published).
 
-- Core: `title`, `slug` (auto from title, locked after publish), `excerpt`, rich-text `content`
-  (Lexical), `author`, `tags`, `coverImage`, `ogImage`, `publishedAt` (set on first publish),
-  `readingTimeMinutes`, `featured`.
-- Publication: `publicationType` (`native` or `external`), `externalPlatform` (medium, linkedin,
-  other), `externalUrl`, `externalCtaLabel`. External entries need no content and get no UI route.
-- SEO: `seoTitle`, `seoDescription`, `canonicalUrl`, `noindex`. Required when publishing.
-- Projects (posts tagged `case-study`): `projectRole`, `projectOutcome` (one measurable result for
-  the homepage card), `projectGallery` (ordered media).
-- Hooks: defaults and slug on validate; publish requirements on change; media used by a published
-  post is marked public; publishing triggers the UI rebuild webhook.
+- Sidebar: `kind`, `status`, `publishedAt` (set on first publish), `slug` (auto from title, locked
+  after publish), `author` (defaults to the signed-in user), `tags`.
+- Content tab: `title`, `excerpt`, `publicationType` (articles only: `native` or `external`),
+  `externalUrl`, `externalPlatform` (medium, linkedin, other; detected from the URL when empty),
+  rich-text `content` (not for external articles), `coverImage`.
+  Projects only: `projectRole`, `projectOutcome` (one measurable result for the homepage card),
+  `projectGallery` (ordered media). Projects are always `native`.
+- SEO tab (all optional; the UI falls back to title, excerpt and cover image): `seoTitle`,
+  `seoDescription`, `ogImage`, `canonicalUrl`, `noindex`.
+- Hidden, kept for stored values: `externalCtaLabel` (the UI labels links from the platform),
+  `readingTimeMinutes` (the UI estimates it), `featured` (unused; homepage projects come from the
+  Home Page global, whose picker only offers projects).
+- Publishing requires title, slug, excerpt, publish date, and either content or (external) URL and
+  platform. Failures are returned as field validation errors, so the admin points at the field.
+- Hooks: defaults, slug and platform detection on validate; publish requirements on change; media
+  used by a published post is marked public; publishing triggers the UI rebuild webhook.
 
 ### Services (`services`)
 
@@ -60,7 +71,9 @@ UI rebuild.
 
 ### Tags (`tags`)
 
-`name`, `slug` (auto), `description`. A tag in use by a post cannot be deleted.
+`name`, `slug` (auto), `description`. A tag in use by a post cannot be deleted. The list view has an
+"Add several tags" box backed by `POST /api/tags/bulk` (`{ names }`, comma or newline separated,
+admin only; existing slugs are skipped).
 
 ### Media (`media`)
 
@@ -119,7 +132,7 @@ requested.
   company or title and overwrites every field it defines, and never deletes. Renamed records can be
   matched by `previousCompanyNames`; the About featured testimonial is set by name
   (`featuredTestimonialName`). Remote seeding is refused unless `ALLOW_REMOTE_SEED=true`.
-- Articles (posts without the `case-study` tag) are not seed baseline. Local development articles
+- Articles (`kind = article`) are not seed baseline. Local development articles
   live in `scripts/seed-articles.local.mjs` and load only through `npm run seed:dev`, which is
   local-only with no override; production articles are written in Payload Admin.
 

@@ -4,9 +4,11 @@ import type {
   CollectionBeforeDeleteHook,
   CollectionBeforeValidateHook,
 } from 'payload'
+import { APIError } from 'payload'
 
 import { slugify } from '@/lib/slugify'
-import { assertPublishRequirements, getNextPostValue } from '@/lib/publishValidation'
+import { detectExternalPlatform } from '@/lib/externalPlatform'
+import { assertPublishRequirements, getNextPostValue, throwFieldErrors } from '@/lib/publishValidation'
 import { notifyUiDeploy } from '@/hooks/uiDeploy'
 
 type PostLike = {
@@ -16,6 +18,7 @@ type PostLike = {
   externalPlatform?: 'medium' | 'linkedin' | 'other' | null
   externalUrl?: string | null
   id?: string
+  kind?: 'article' | 'project'
   ogImage?: string | { id?: string }
   projectGallery?: Array<string | { id?: string }>
   publicationType?: 'native' | 'external'
@@ -68,6 +71,15 @@ export const setPostDefaults: CollectionBeforeValidateHook = async ({
     mutable.slug = slugify(mutable.title)
   }
 
+  // Projects are always case studies hosted here.
+  if (mutable.kind === 'project') {
+    mutable.publicationType = 'native'
+  }
+
+  if (mutable.publicationType === 'external' && mutable.externalUrl && !mutable.externalPlatform) {
+    mutable.externalPlatform = detectExternalPlatform(mutable.externalUrl)
+  }
+
   return mutable
 }
 
@@ -86,7 +98,7 @@ export const enforcePublishRequirements: CollectionBeforeChangeHook = async ({
   }
 
   if (prevStatus === 'published' && 'slug' in mutable && mutable.slug !== original?.slug) {
-    throw new Error('Slug cannot be changed after a post is published.')
+    throwFieldErrors([{ message: 'The slug cannot change once published; it is part of the public URL.', path: 'slug' }])
   }
 
   assertPublishRequirements(mutable, original)
@@ -109,7 +121,7 @@ export const preventDeletingAuthorInUse: CollectionBeforeDeleteHook = async ({ i
   })
 
   if (posts.totalDocs > 0) {
-    throw new Error('Cannot delete user while posts still reference this author.')
+    throw new APIError('This user is the author of articles or projects; reassign them before deleting.', 400, undefined, true)
   }
 }
 

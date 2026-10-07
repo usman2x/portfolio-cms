@@ -2,6 +2,7 @@ import type {
   CollectionBeforeDeleteHook,
   CollectionBeforeValidateHook,
 } from 'payload'
+import { APIError } from 'payload'
 
 import { slugify } from '@/lib/slugify'
 
@@ -35,6 +36,6 @@ export const preventDeletingTagInUse: CollectionBeforeDeleteHook = async ({ id, 
   })
 
   if (posts.totalDocs > 0) {
-    throw new Error('Cannot delete a tag that is still referenced by posts.')
+    throw new APIError('This tag is still used by articles or projects, so it cannot be deleted.', 400, undefined, true)
   }
 }

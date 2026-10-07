@@ -6,6 +6,7 @@ import type {
   CollectionBeforeOperationHook,
   Where,
 } from 'payload'
+import { APIError } from 'payload'
 
 import {
   buildBlobsFromRequest,
@@ -126,7 +127,7 @@ export const preventDeletingMediaUsedByPublishedPosts: CollectionBeforeDeleteHoo
   })
 
   if (posts.totalDocs > 0) {
-    throw new Error('Cannot delete media referenced by a published post.')
+    throw new APIError('This media is used by a published article or project, so it cannot be deleted.', 400, undefined, true)
   }
 
   const published = await req.payload.find({
@@ -138,6 +139,6 @@ export const preventDeletingMediaUsedByPublishedPosts: CollectionBeforeDeleteHoo
   })
 
   if (published.docs.some((post) => collectUploadIDs(post.content).has(String(id)))) {
-    throw new Error('Cannot delete media embedded in a published post.')
+    throw new APIError('This media is embedded in a published article or project, so it cannot be deleted.', 400, undefined, true)
   }
 }

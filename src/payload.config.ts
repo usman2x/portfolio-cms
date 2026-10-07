@@ -55,6 +55,7 @@ export default buildConfig({
     user: Users.slug,
     components: {
       beforeDashboard: ['/components/RebuildUI'],
+      beforeNavLinks: ['/components/ContentNav'],
     },
     importMap: {
       baseDir: path.resolve(dirname),

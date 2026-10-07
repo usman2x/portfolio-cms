@@ -182,6 +182,9 @@ export interface User {
 export interface Tag {
   id: string;
   name: string;
+  /**
+   * Generated from the name when left empty.
+   */
   slug: string;
   description?: string | null;
   updatedAt: string;
@@ -242,25 +245,36 @@ export interface Media {
  */
 export interface Post {
   id: string;
-  title: string;
+  kind: 'article' | 'project';
+  status: 'draft' | 'published';
+  /**
+   * Set automatically on first publish.
+   */
+  publishedAt?: string | null;
+  /**
+   * Generated from the title when left empty. Locked after publishing.
+   */
   slug: string;
+  author: string | User;
+  tags?: (string | Tag)[] | null;
+  title: string;
+  /**
+   * Shown on cards and lists, and used as the SEO description unless one is set.
+   */
   excerpt: string;
   /**
    * External articles appear in article lists but open on the original platform and do not create a local detail page.
    */
-  publicationType: 'native' | 'external';
-  externalPlatform?: ('medium' | 'linkedin' | 'other') | null;
+  publicationType?: ('native' | 'external') | null;
   /**
-   * The original Medium, LinkedIn, or other article URL.
+   * The original article URL.
    */
   externalUrl?: string | null;
   /**
-   * Optional override, for example “Read on Medium”.
+   * Sets the "Read on …" link. Detected from the URL when left empty.
    */
+  externalPlatform?: ('medium' | 'linkedin' | 'other') | null;
   externalCtaLabel?: string | null;
-  /**
-   * Required for native articles and project case studies. External article entries link to their original publication instead.
-   */
   content?: {
     root: {
       type: string;
@@ -276,33 +290,41 @@ export interface Post {
     };
     [k: string]: unknown;
   } | null;
-  author: string | User;
-  tags?: (string | Tag)[] | null;
-  coverImage?: (string | null) | Media;
-  ogImage?: (string | null) | Media;
-  status: 'draft' | 'published';
-  publishedAt?: string | null;
-  seoTitle?: string | null;
-  seoDescription?: string | null;
-  canonicalUrl?: string | null;
-  noindex?: boolean | null;
   /**
-   * Optional computed value.
+   * Projects fall back to the first gallery image.
    */
-  readingTimeMinutes?: number | null;
-  featured?: boolean | null;
+  coverImage?: (string | null) | Media;
   /**
-   * Optional role shown on project previews and case studies.
+   * Your role, shown on project previews and the case study.
    */
   projectRole?: string | null;
   /**
-   * Optional one-line result shown on homepage project cards, e.g. "Test coverage raised from 10% to 80%".
+   * One-line result for homepage project cards, e.g. "Test coverage raised from 10% to 80%".
    */
   projectOutcome?: string | null;
   /**
-   * Full project gallery. The first image is used as the project cover when no separate cover image is selected.
+   * Ordered project gallery.
    */
   projectGallery?: (string | Media)[] | null;
+  /**
+   * Defaults to the title.
+   */
+  seoTitle?: string | null;
+  /**
+   * Defaults to the excerpt.
+   */
+  seoDescription?: string | null;
+  /**
+   * Social share image. Defaults to the cover image.
+   */
+  ogImage?: (string | null) | Media;
+  /**
+   * Only when this content first appeared on another site.
+   */
+  canonicalUrl?: string | null;
+  noindex?: boolean | null;
+  readingTimeMinutes?: number | null;
+  featured?: boolean | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -610,29 +632,30 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "posts_select".
  */
 export interface PostsSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  excerpt?: T;
-  publicationType?: T;
-  externalPlatform?: T;
-  externalUrl?: T;
-  externalCtaLabel?: T;
-  content?: T;
-  author?: T;
-  tags?: T;
-  coverImage?: T;
-  ogImage?: T;
+  kind?: T;
   status?: T;
   publishedAt?: T;
+  slug?: T;
+  author?: T;
+  tags?: T;
+  title?: T;
+  excerpt?: T;
+  publicationType?: T;
+  externalUrl?: T;
+  externalPlatform?: T;
+  externalCtaLabel?: T;
+  content?: T;
+  coverImage?: T;
+  projectRole?: T;
+  projectOutcome?: T;
+  projectGallery?: T;
   seoTitle?: T;
   seoDescription?: T;
+  ogImage?: T;
   canonicalUrl?: T;
   noindex?: T;
   readingTimeMinutes?: T;
   featured?: T;
-  projectRole?: T;
-  projectOutcome?: T;
-  projectGallery?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

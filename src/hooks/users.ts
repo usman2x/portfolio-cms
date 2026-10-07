@@ -1,4 +1,5 @@
 import type { CollectionBeforeChangeHook, CollectionBeforeDeleteHook, CollectionBeforeLoginHook } from 'payload'
+import { APIError } from 'payload'
 
 export const enforceActiveAdminLogin: CollectionBeforeLoginHook = ({ user }) => {
   const typedUser = user as { isActive?: boolean }
@@ -31,6 +32,6 @@ export const preventDeletingLastAdmin: CollectionBeforeDeleteHook = async ({ id,
   })
 
   if (admins.totalDocs <= 1) {
-    throw new Error('Cannot delete the last admin user.')
+    throw new APIError('Cannot delete the last admin user.', 400, undefined, true)
   }
 }

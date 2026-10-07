@@ -16,6 +16,7 @@ import * as migration_20261005_050159_articles_rename_and_home_description from 
 import * as migration_20261005_052030_archive_filter_copy_articles from './20261005_052030_archive_filter_copy_articles';
 import * as migration_20261005_064723_services_and_project_outcome from './20261005_064723_services_and_project_outcome';
 import * as migration_20261005_072721_about_featured_testimonial from './20261005_072721_about_featured_testimonial';
+import * as migration_20261007_063707_post_kind from './20261007_063707_post_kind';
 
 export const migrations = [
   {
@@ -106,6 +107,11 @@ export const migrations = [
   {
     up: migration_20261005_072721_about_featured_testimonial.up,
     down: migration_20261005_072721_about_featured_testimonial.down,
-    name: '20261005_072721_about_featured_testimonial'
+    name: '20261005_072721_about_featured_testimonial',
+  },
+  {
+    up: migration_20261007_063707_post_kind.up,
+    down: migration_20261007_063707_post_kind.down,
+    name: '20261007_063707_post_kind'
   },
 ];

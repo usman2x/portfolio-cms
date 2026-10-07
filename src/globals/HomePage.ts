@@ -49,7 +49,7 @@ export const HomePage: GlobalConfig = {
     { name: 'writingsLimit', label: 'Articles shown', type: 'number', min: 1, max: 6, defaultValue: 2 },
     { name: 'projectsTitle', type: 'text', required: true },
     { name: 'projectsArchiveLabel', type: 'text', required: true },
-    { name: 'featuredProjects', type: 'relationship', relationTo: 'posts', hasMany: true },
+    { name: 'featuredProjects', type: 'relationship', relationTo: 'posts', hasMany: true, filterOptions: { kind: { equals: 'project' } } },
     { name: 'servicesTitle', label: 'Services title', type: 'text', admin: { description: 'Heading of the homepage "Ways to work together" section. Leave empty to hide the section.' } },
     { name: 'servicesDescription', label: 'Services description', type: 'textarea', admin: { description: 'One sentence under the services heading.' } },
     { name: 'servicesLimit', label: 'Services shown', type: 'number', min: 1, max: 6, defaultValue: 4 },
