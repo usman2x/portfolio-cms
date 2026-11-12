@@ -907,6 +907,19 @@ const rawPosts = [
       },
     ],
   },
+  {
+    title: "Paisy Stablecoin Wallet and Card App",
+    slug: "paisy-stablecoin-wallet",
+    excerpt:
+      "A non-custodial stablecoin wallet with cards and bank deposits, built as V1 by a six-developer team in India under one engineering manager.",
+    seoTitle: "Paisy Stablecoin Wallet and Card App | Case Study",
+    seoDescription:
+      "Non-custodial USDC wallets, multi-chain deposits, card spending, US bank deposits, compliance operations, and a testnet proof of concept.",
+    readingTimeMinutes: 5,
+    featured: false,
+    tagSlugs: ["case-study", "fintech", "mobile", "cloud", "engineering"],
+    sections: [],
+  },
 ];
 
 // Roles and order mirror ../portfolio/projects/<slug>/index.md. Archives list projects by
@@ -978,6 +991,13 @@ const projectEnhancements = {
     publishedAt: projectOrderDate(9),
     referenceCaseStudy: "nemo-asr.md",
     projectGalleryFiles: ["ASR.png"],
+  },
+  "paisy-stablecoin-wallet": {
+    projectRole: "Engineering Manager & Product Architect",
+    projectOutcome: "V1 scope, fund flows and compliance model fixed, with wallet flows proven on testnet",
+    publishedAt: projectOrderDate(13),
+    referenceCaseStudy: "paisy.md",
+    projectGalleryDirectory: "Paisy",
   },
 };
 
