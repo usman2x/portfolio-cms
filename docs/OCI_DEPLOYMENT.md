@@ -147,10 +147,11 @@ unset SEED_ADMIN_EMAIL SEED_ADMIN_PASSWORD CMS_API_URL
 
 ## Remaining production steps
 
-1. Enter the content added by the 2026-10-05 release in Payload Admin (sections stay hidden until
-   filled): Services records and Home Page `servicesTitle`/`servicesDescription`; `projectOutcome`
-   on featured projects; Home Page `primaryCtaNote`; About Page `featuredTestimonial`; remove the
-   third About summary paragraph; order each Work Experience role's measurable highlights first.
+1. Done 2026-11-12: the content added by the 2026-10-05 release was applied by `seed:core`.
+   Checked through the public API on 2026-11-19: three Services, Home Page `servicesTitle`,
+   `servicesDescription` and `primaryCtaNote`, `projectOutcome` on the featured projects, About
+   Page `featuredTestimonial` and a two-paragraph summary. Not checked: Work Experience highlight
+   order.
 2. Confirm each save triggers a successful UI rebuild (see the UI runbook's rebuild tests).
 
 Administer Payload only over `https://cms.themuhammadusman.com/admin`, never over plain HTTP. If HTTPS is unavailable, use an SSH tunnel instead:
