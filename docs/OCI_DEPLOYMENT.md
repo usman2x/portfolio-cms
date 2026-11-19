@@ -172,6 +172,11 @@ sessions, so every administrator must log in again.
 
 **Why is the CMS on its own subdomain?** It gives Payload Admin a separate origin, so its `/_next/*` assets never collide with the UI's, and CORS can allow exactly the UI origin.
 
+**Why does the CMS block crawlers?** `src/app/robots.ts` serves a `robots.txt` that disallows the
+whole host except `/api/media/file/`. Without it Google crawled admin paths (`/login`, `/graphql`…)
+and reported them as 404s; media stays allowed because the public site's pages and social previews
+load images from here.
+
 **Do migrations seed content?** No. They only change the database schema.
 
 **Why does publishing not immediately change the UI?** The UI uses static generation. On OCI, the configured local deployment webhook automatically starts a debounced rebuild; content becomes visible after that build succeeds.
