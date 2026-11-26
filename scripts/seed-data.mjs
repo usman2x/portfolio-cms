@@ -215,6 +215,22 @@ export const services = [
 // Mirrors ../portfolio/profile/experience.md; highlights lead with business outcomes.
 export const workExperience = [
   {
+    company: "Paisy",
+    role: "Engineering Manager & Product Architect",
+    period: "Oct 2026 - Present",
+    // Not stated in the portfolio source; empty clears any stored value.
+    location: "",
+    website: "https://paisy.com",
+    sortOrder: 5,
+    summary:
+      "Owning Paisy end to end, a non-custodial stablecoin wallet with virtual Visa cards, US bank accounts and global payouts, with engineers in India and Pakistan.",
+    highlights: [
+      "Took V1 from proofs of concept to a working dev release (iOS and Android app, Node.js API on AWS, Next.js admin panel) running since 15 Nov 2026.",
+      "Turned R&D into Dynamic MPC wallets and Rain card issuing, accounts and payouts into the specifications that drove AI-assisted development.",
+      "Designed fund flows, an idempotent ledger and webhook pipeline, and KYC/AML operations with sanctions screening, four-eyes approvals and audit trails.",
+    ],
+  },
+  {
     company: "Tabrem",
     // The current role replaces the earlier independent-work entry.
     previousCompanyNames: ["Self-employed", "Self-Employed"],
@@ -374,7 +390,7 @@ export const globals = {
     supportingText:
       "10+ years building fintech, retail and big-data products for startups and enterprises such as Walmart. I start with the problem and the people, data and budget you already have, then architect and ship the smallest product that proves it, as your technical co-founder, delivery partner or advisor.",
     trustChips: [
-      "9+ Years Experience",
+      "10+ Years Experience",
       "Walmart & Global Teams",
       "Java + Python + React",
       "Data + AI Platforms",
@@ -911,11 +927,11 @@ const rawPosts = [
     title: "Paisy Stablecoin Wallet and Card App",
     slug: "paisy-stablecoin-wallet",
     excerpt:
-      "A non-custodial stablecoin wallet with cards and bank deposits, built as V1 by a six-developer team in India under one engineering manager.",
+      "A non-custodial stablecoin wallet with cards, bank deposits and global payouts, taken from proof of concept to a working dev release by a cross-border team in India and Pakistan.",
     seoTitle: "Paisy Stablecoin Wallet and Card App | Case Study",
     seoDescription:
-      "Non-custodial USDC wallets, multi-chain deposits, card spending, US bank deposits, compliance operations, and a testnet proof of concept.",
-    readingTimeMinutes: 5,
+      "Non-custodial MPC wallets holding USDC on Base, virtual Visa cards, US bank deposits, global payouts with locked FX quotes, an idempotent ledger and KYC/AML compliance operations.",
+    readingTimeMinutes: 6,
     featured: false,
     tagSlugs: ["case-study", "fintech", "mobile", "cloud", "engineering"],
     sections: [],
@@ -994,7 +1010,7 @@ const projectEnhancements = {
   },
   "paisy-stablecoin-wallet": {
     projectRole: "Engineering Manager & Product Architect",
-    projectOutcome: "V1 scope, fund flows and compliance model fixed, with wallet flows proven on testnet",
+    projectOutcome: "V1 taken from proofs of concept to a working dev release of wallets, cards, bank deposits and payouts",
     publishedAt: projectOrderDate(13),
     referenceCaseStudy: "paisy.md",
     projectGalleryDirectory: "Paisy",
